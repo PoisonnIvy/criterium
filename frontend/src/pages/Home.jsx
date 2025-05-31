@@ -1,36 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import useAuthRedirect from "../hooks/useAuthRedirect";
+
 
 const Home = () => {
   const navigate = useNavigate();
-  const [cookies, removeCookie] = useCookies([]);
-  const [username, setUsername] = useState("");
+  const username = useAuthRedirect({ requireAuth: true });
+
   useEffect(() => {
-    const verifyCookie = async () => {
-      if (!cookies.token) {
-        navigate("/login");
-      }
-      const { data } = await axios.post(
-        "http://localhost:4000",
+    if (username && !sessionStorage.getItem("welcomed")) {
+      toast(`Hello ${username}`, { position: "top-right" });
+      sessionStorage.setItem("welcomed", "true");
+    }
+  }, [username]);
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_APP_SERVER_URL}/auth/logout`,
         {},
         { withCredentials: true }
       );
-      const { status, user } = data;
-      setUsername(user);
-      return status
-        ? toast(`Hello ${user}`, {
-            position: "top-right",
-          })
-        : (removeCookie("token"), navigate("/login"));
-    };
-    verifyCookie();
-  }, [cookies, navigate, removeCookie]);
-  const Logout = () => {
-    removeCookie("token");
-    navigate("/signup");
+      sessionStorage.removeItem("welcomed");
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);  
+    }
   };
   return (
     <>
@@ -39,7 +36,13 @@ const Home = () => {
           {" "}
           Welcome <span>{username}</span>
         </h4>
-        <button onClick={Logout}>LOGOUT</button>
+        <embed
+          src="https://cataas.com/cat"
+          width="600"
+          height="400"
+          type="image/jpg"
+          ></embed>
+        <button onClick={handleLogout}>LOGOUT</button>
       </div>
       <ToastContainer />
     </>

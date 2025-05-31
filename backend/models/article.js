@@ -12,8 +12,7 @@ const articleSchema = new mongoose.Schema({
     },
     isOA: {
         type: Boolean,
-        default: false,
-        required: true
+        default: true
          
     },
     metadata: {

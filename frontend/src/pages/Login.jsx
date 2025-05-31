@@ -2,14 +2,17 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import useAuthRedirect from "../hooks/useAuthRedirect";
 
 const Login = () => {
-  const navigate = useNavigate();
+  useAuthRedirect({ requireAuth: false });
+  const navigate = useNavigate();  
   const [inputValue, setInputValue] = useState({
     email: "",
     password: "",
   });
   const { email, password } = inputValue;
+
   const handleOnChange = (e) => {
     const { name, value } = e.target;
     setInputValue({
@@ -31,18 +34,17 @@ const Login = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:8080/login",
+        `${import.meta.env.VITE_APP_SERVER_URL}/auth/login`,
         {
           ...inputValue,
         },
         { withCredentials: true }
       );
-      console.log(data);
       const { success, message } = data;
       if (success) {
         handleSuccess(message);
         setTimeout(() => {
-          navigate("/");
+          navigate("/home");
         }, 1000);
       } else {
         handleError(message);

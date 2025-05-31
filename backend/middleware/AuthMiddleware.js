@@ -1,20 +1,7 @@
-import dotenv from "dotenv";
-dotenv.config();
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
 
-export function userVerification(req, res) {
-  const token = req.cookies.token
-  if (!token) {
-    return res.json({ status: false })
+export const requireAuth = (req, res, next) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: "not authenticated" });
   }
-  jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
-    if (err) {
-     return res.json({ status: false })
-    } else {
-      const user = await User.findById(data.id)
-      if (user) return res.json({ status: true, user: user.username })
-      else return res.json({ status: false })
-    }
-  })
-}
+  next();
+};

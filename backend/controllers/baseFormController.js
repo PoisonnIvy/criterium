@@ -1,6 +1,5 @@
-import BaseForm from '../models/BaseForm.js';
+import BaseForm from '../models/baseForm.js';
 
-const notfound = res.status(404).json({ message: 'Base form not found'})
 // FUNCION PARA CREAR UN FORMULARIO BASE
 export const createBaseForm = async (req, res) => {
     const { fields, projectID } = req.body;
@@ -37,7 +36,7 @@ export const getBaseFormById = async (req, res) => {
     try {
         const BaseForm = await BaseForm.findById(id);
         if (!BaseForm) {
-            return notfound
+            return res.status(404).json({ message: 'Base form not found'})
         }
         res.status(200).json(BaseForm);
     }
@@ -65,7 +64,7 @@ export const updateBaseForm = async (req, res) => {
             { new: true }
         );
         if (!updatedBaseForm) {
-            return notfound
+            return res.status(404).json({ message: 'Base form not found'})
         }
         res.status(200).json(updatedBaseForm);
     } catch (error) {
@@ -88,7 +87,7 @@ export const setEditingStatus = async (req, res) =>{
             {new: true}
         );
         if(!setEditing){
-            return notfound
+            return res.status(404).json({ message: 'Base form not found'})
         }
         res.status(418).json({message: 'Set Editing Status'}, setEditing)
     } catch (error) {

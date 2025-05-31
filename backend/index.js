@@ -2,10 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db_config.js';
-import cookieParser from 'cookie-parser';
-import authRoute from './routes/AuthRoutes.js';
+import MongoStore from 'connect-mongo';
+import session from 'express-session';
+import { Projects, Auth, BaseForm, Assignments, Articles } from './routes/index.js';
+//import sendSimpleMessage from './utils/mail.js';
 const app = express();
 dotenv.config();
+
 
 app.use(
   cors({
@@ -15,31 +18,43 @@ app.use(
   })
 );
 app.use(express.json()); // allows to parse JSON data in the request body
+app.use(express.urlencoded({ extended: true })); // allows to parse URL-encoded data in the request body
 
-app.use(cookieParser());
+//configuracion de la session
+app.use(session({
+  name: "sid",
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.DEV_MONGO_URI,
+    collectionName: "sessions",
+  }),
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24, // 1 dia
+    httpOnly: true,
+    secure: false, // solo para desarrollo
+    sameSite: "lax",
+  },
+}));
 
+//RUTAS
+app.use("/auth", Auth);
+app.use("/api", Projects);
+app.use("/api", BaseForm);
+app.use("/api", Assignments);
+app.use("/api", Articles);
+
+
+
+//conexion a la base de datos e iniciar el servidor
 connectDB().then(() => {
   app.listen(process.env.PORT, () => {
     console.log(`Server started on port ${process.env.PORT}`);
-  });
+    //sendSimpleMessage(); // Uncomment this line to send a test email when the server starts
 });
+})
 
-app.use("/", authRoute);
-
-/* Ejemplo de como se importan las rutas
-const espaciocomRoutes = require('./routes/espaciocomRoute');
-const reservaespacioRoutes = require('./routes/reservaespacioRoute');
-const fileRoutes = require('./routes/fileRoute');
-
-*/
-
-/* Ejemplo de como se usan las rutas
-app.use('/api', espaciocomRoutes);
-app.use('/api', reservaespacioRoutes);
-app.use('/api', fileRoutes);
-app.use('/api', usuarioRoutes);
-app.use('/api', sancionRoutes);
-*/
 
 /*
 inyeccion nosql

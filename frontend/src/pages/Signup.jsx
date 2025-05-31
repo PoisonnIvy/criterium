@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import React, {  useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import useAuthRedirect from "../hooks/useAuthRedirect";
 
 const Signup = () => {
+  useAuthRedirect({ requireAuth: false });
+
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState({
     email: "",
     password: "",
-    username: "",
+    name: "",
   });
-  const { email, password, username } = inputValue;
+  const { email, password, name } = inputValue;
   const handleOnChange = (e) => {
     const { name, value } = e.target;
     setInputValue({
@@ -32,7 +35,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:8080/signup",
+        `${import.meta.env.VITE_APP_SERVER_URL}/auth/signup`,
         {
           ...inputValue,
         },
@@ -42,7 +45,7 @@ const Signup = () => {
       if (success) {
         handleSuccess(message);
         setTimeout(() => {
-          navigate("/");
+          navigate("/home");
         }, 1000);
       } else {
         handleError(message);
@@ -54,7 +57,7 @@ const Signup = () => {
       ...inputValue,
       email: "",
       password: "",
-      username: "",
+      name: "",
     });
   };
 
@@ -73,12 +76,12 @@ const Signup = () => {
           />
         </div>
         <div>
-          <label htmlFor="email">Username</label>
+          <label htmlFor="name">name</label>
           <input
             type="text"
-            name="username"
-            value={username}
-            placeholder="Enter your username"
+            name="name"
+            value={name}
+            placeholder="Enter your name"
             onChange={handleOnChange}
           />
         </div>

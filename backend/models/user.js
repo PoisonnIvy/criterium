@@ -15,14 +15,6 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    projects: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Project",
-    }],
-    contributor:[{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Team",
-    }],
     createdAt: {
         type: Date,
         default: Date.now,

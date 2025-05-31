@@ -48,5 +48,5 @@ assignmentSchema.index({ articleId: 1, status: 1 }, {
 assignmentSchema.index({ assignedTo: 1, status: 1 });
 assignmentSchema.index({ projectId: 1, status: 1 });
 
-const Assignment = mongoose.model("BaseForm", assignmentSchema);
+const Assignment = mongoose.model("Assignment", assignmentSchema);
 export default Assignment;

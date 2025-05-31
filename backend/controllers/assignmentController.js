@@ -1,6 +1,5 @@
 import Assignment from '../models/assignment.js';
 import Article from '../models/article.js';
-import Team from '../models/team.js';
 
 
 
