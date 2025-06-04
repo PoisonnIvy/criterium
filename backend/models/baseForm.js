@@ -2,10 +2,6 @@ import mongoose from "mongoose";
 
 const baseFormSchema = new mongoose.Schema({
     fields: [{
-        id: {
-            type: String,
-            required: true,
-        },
         type: { 
             type: String, 
             enum: ['text', 'textarea', 'number', 'select', 'multiselect', 'boolean', 'date'],
@@ -15,13 +11,12 @@ const baseFormSchema = new mongoose.Schema({
             type: Boolean, 
             default: true
         },
-        options: [String], // Para select/multiselect
+        options:{
+            type: [String],
+            required: true,
+        }, // Para select/multiselect
         placeholder: String,
         helpText: String,
-        order: { 
-            type: Number, 
-            required: true 
-        }
     }],
     projectId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -55,7 +50,27 @@ const baseFormSchema = new mongoose.Schema({
     unique:{
         type: Boolean,
         default: false,
-    }
+    },
+    comments:[{
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        comment: {
+            type: String,
+            required: true,
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        },
+        status: {
+            type: String,
+            enum: ["pendiente", "resuelto"],
+            default: "pendiente",
+        },
+    }]
 });
 baseFormSchema.index({ projectId: 1, unique: 1 }, { 
   unique: true, 

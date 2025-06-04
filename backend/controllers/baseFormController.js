@@ -1,97 +1,72 @@
 import BaseForm from '../models/baseForm.js';
 
-// FUNCION PARA CREAR UN FORMULARIO BASE
+// CREAR FORMULARIO BASE
 export const createBaseForm = async (req, res) => {
-    const { fields, projectID } = req.body;
-    const [{ fieldName, fieldType, fieldOptions }] = fields;
+    const { projectId } = req.params;
+    const { fields } = req.body;
 
     try {
         const newBaseForm = new BaseForm({
-            projectID,
-            fields:[{fieldName, fieldType, fieldOptions}],
-
+            projectId,
+            fields,
         });
 
         await newBaseForm.save();
         res.status(201).json(newBaseForm);
     } catch (error) {
-        res.status(500).json({ message: 'Error creating base form', error });
+        res.status(500).json({ message: 'Error al crear el formulario base', error });
     }
-}
+};
 
-// FUNCION PARA OBTENER TODOS LOS FORMULARIOS BASE ???? para que es esto xd no le veo sentido poder obtener todos los formularios base
-export const getBaseForms = async (req, res) => {
-    try {
-        const BaseForms = await BaseForm.find();
-        res.status(200).json(BaseForms);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching base forms', error });
-    }
-}
-
-//FUNCION PARA BUSCAR UN FORMULARIO BASE POR ID
+// BUSCAR FORMULARIO BASE POR ID
 export const getBaseFormById = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const BaseForm = await BaseForm.findById(id);
-        if (!BaseForm) {
-            return res.status(404).json({ message: 'Base form not found'})
-        }
-        res.status(200).json(BaseForm);
+    const baseForm = req.baseForm || await BaseForm.findById(req.params.bformId);
+    if (!baseForm) {
+        return res.status(404).json({ message: 'Formulario base no encontrado' });
     }
-    catch (error) {
-        res.status(500).json({ message: 'Error fetching base form', error });
-    }
-}
+    res.status(200).json(baseForm);
+};
 
-// FUNCION PARA ACTUALIZAR UN FORMULARIO BASE
+// ACTUALIZAR FORMULARIO BASE
 export const updateBaseForm = async (req, res) => {
-    const { id, version } = req.params; // COMES FROM THE URL
-    const { fields, updatedBy,} = req.body;
-    const [{ fieldName, fieldType, fieldOptions }] = fields;
+    const baseForm = req.baseForm;
+    const userId = req.session.userId;
+    const { fields } = req.body;
 
     try {
-        const updatedBaseForm = await BaseForm.findByIdAndUpdate(
-            id,
-            {
-            fields:[{fieldName, fieldType, fieldOptions}],
-            version: (version + 1),
-            updatedBy,
-            status: "free",
-            isActive: true,
-            },
-            { new: true }
-        );
-        if (!updatedBaseForm) {
-            return res.status(404).json({ message: 'Base form not found'})
-        }
-        res.status(200).json(updatedBaseForm);
+        if (fields) baseForm.fields = fields;
+        baseForm.updatedBy = userId;
+        baseForm.version += 1;
+        baseForm.status = "free";
+        baseForm.isActive = true;
+        await baseForm.save();
+        res.status(200).json(baseForm);
     } catch (error) {
-        res.status(500).json({ message: 'Error updating base form', error });
+        res.status(500).json({ message: 'Error al actualizar el formulario base', error });
     }
-}
+};
 
-//FUNCION PARA CAMBIAR EL ESTADO CUANDO SE EDITA EL FORM BASE. para evitar ediciones simultaneas
-export const setEditingStatus = async (req, res) =>{
-    const { id } = req.params;
+// AGREGAR COMENTARIO
+export const comments = async (req, res) => {
+    const baseForm = req.baseForm || await BaseForm.findById(req.params.bformId);
+    const userId = req.session.userId;
+    const { comment } = req.body;
 
     try {
-        const setEditing = await BaseForm.findByIdAndUpdate(
-            id,
-            {
-                status : "editing",
-                isActive : false,
-            },
-
-            {new: true}
-        );
-        if(!setEditing){
-            return res.status(404).json({ message: 'Base form not found'})
+        if (!baseForm) {
+            return res.status(404).json({ message: 'Formulario base no encontrado' });
         }
-        res.status(418).json({message: 'Set Editing Status'}, setEditing)
-    } catch (error) {
-        
-    }
-}
 
+        baseForm.comments.push({
+            userId,
+            comment,
+            createdAt: new Date(),
+            status: 'pendiente',
+        });
+
+        await baseForm.save();
+        res.status(200).json(baseForm);
+    } catch (error) {
+        res.status(500).json({ message: 'Erroral añadir comentario', error });
+    }
+};

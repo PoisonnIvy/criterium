@@ -7,7 +7,7 @@ const projectSchema = new mongoose.Schema({
     },
     description: {
         type: String,
-        required: true,
+        default: "Sin descripción",
     },
     status: {
         type: String,
@@ -32,8 +32,9 @@ const projectSchema = new mongoose.Schema({
             required: true
         },
         joinedAt: { type: Date, default: Date.now },
-        isActive: { type: Boolean, default: true }
-    }],
+        isActive: { type: Boolean, default: true },
+       
+    },{ _id : false }],
     
 }, {
     timestamps: true, //createdAt, updatedAt
@@ -42,14 +43,8 @@ const projectSchema = new mongoose.Schema({
 projectSchema.index({ 'members.userId': 1 });
 projectSchema.index({ leaderId: 1 });
 
-// Método para verificar permisos
+// Método que retorna el rol del usuario
 projectSchema.methods.getUserRole = function(userId) {
-  // El líder siempre tiene permisos de líder
-  if (this.leaderId.toString() === userId.toString()) {
-    return 'leader';
-  }
-  
-  // Buscar en miembros activos
   const member = this.members.find(m => 
     m.userId.toString() === userId.toString() && m.isActive
   );
@@ -57,7 +52,7 @@ projectSchema.methods.getUserRole = function(userId) {
   return member ? member.role : null;
 };
 
-projectSchema.methods.canEditBaseForm = function(userId) {
+projectSchema.methods.canEditMembers = function(userId) {
   const role = this.getUserRole(userId);
   return ['leader', 'editor'].includes(role);
 };
