@@ -23,10 +23,15 @@ export async function Signup(req, res) {
     }*/
 
     const user = await User.create({ name, email:norm_email, password });
+    const userData={
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt
+    }
     req.session.userId = user._id;
     req.session.username = user.name;
     req.session.email = user.email;
-    res.status(201).json({ message: "Usuario registrado correctamente", success: true, user });
+    res.status(201).json({ message: "Usuario registrado correctamente", success: true, userData });
   } catch (error) {
     console.error(error);
   }
@@ -53,7 +58,9 @@ export async function Login(req, res) {
     req.session.userId = user._id;
     req.session.username = user.name;
     req.session.email = user.email;
-    res.status(201).json({ message: "", success: true });
+    res.status(201).json({message: `Bienvenido! ${user.name}`, 
+                          success: true, 
+                          lastLogin: user.lastLogin, });
     await User.findByIdAndUpdate(
       user._id,
       { lastLogin: new Date().toISOString() },

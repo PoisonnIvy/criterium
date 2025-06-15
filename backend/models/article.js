@@ -10,36 +10,61 @@ const articleSchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
-    isOA: {
-        type: Boolean,
-        default: true
-         
+    tags: [String], // Array of tags for categorization
+    abstract: String,
+    source: String, //web or pdf
+    pdfPath: String,
+    OA_URL: String, // Open Access URL
+    doi:{
+        type:String,
+        required: true,
+        default: '',
+    },
+    doiUrl: {
+        type: String,
+    },
+    otherIdentifiers: {
+        pmid: String,
+        arxivId: String,
+        isbn: String,
+        handle: String,
+        customId: String
+    },
+    publicationType: {
+        type: String,
+        enum: ['journal', 'conference', 'book', 'report', 'thesis', 'other'],
+        default: 'journal'
     },
     metadata: {
         year: Number,
-        journal: String,
         volume: String,
         issue: String,
         pages: String,
-        doi: String,
         keywords: [String],
         authors: [{
-        name: String,
-        }]
+            name: { type: String, required: true },
+            affiliation: String,
+            orcid: String
+        }],
+        journal: String,
+        publisher: String,
+        citationCount: Number,
+        language: [String],
     },
-    abstract: String,
-    url: String,
-    source: String,
-
+///status para el cribado
     status: { 
         type: String, 
-        enum: ['pending', 'assigned', 'in_progress', 'completed', 'reviewed'], 
-        default: 'pending' 
+        enum: ['pendiente','aceptado','descartado'], 
+        default: 'pendiente' 
     },
     addedBy: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'User', 
         required: true 
+    },
+    modifiedBy: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User' 
     },
 }, {
     timestamps: true, // createdAt, updatedAt
@@ -47,6 +72,7 @@ const articleSchema = new mongoose.Schema({
 
 articleSchema.index({ projectId: 1, status: 1 });
 articleSchema.index({ projectId: 1, createdAt: -1 });
+articleSchema.index({ projectId: 1, doi: 1 }, { unique: true });
 
 const Article = mongoose.model("Article", articleSchema);
 export default Article;

@@ -1,65 +1,74 @@
-import FormInstance from "../models/formInstance";
+import FormInstance from "../models/formInstance.js";
 
-export const createFormInstance = async (req, res) => {
-    const { projectId, articleId, baseFormId, data } = req.body;
+export const createFormInstance = async ({ projectId, articleId, baseFormId, assignmentId, data }) => {
 
     try {
         const newFormInstance = new FormInstance({
             projectId,
             articleId,
             baseFormId,
+            assignmentId,
             data
         });
 
         await newFormInstance.save();
-        res.status(201).json(newFormInstance);
+        return newFormInstance;
     } catch (error) {
-        res.status(500).json({ message: 'Error creating form instance', error });
+        return null;
     }
 }
 
-export const updateFormInstance = async (req, res) => {
-    const { id } = req.params;
+export const editFormInstance = async (req, res) => {
+    instance = req.instance;
     const { data } = req.body;
+    const { status } = req.query;
 
     try {
-        const formInstance = await FormInstance.findById(id);
-        if (!formInstance) {
-            return res.status(404).json({ message: 'Form instance not found' });
+        if (!instance) {
+            return res.status(404).json({ message: 'Instancia de formulario no encontrada' });
+        }
+        if (status && status === 'completed') {
+                instance.markAsCompleted();
+                await instance.save();
+                res.status(200).json(instance);
         }
 
-        formInstance.data = data;
-        formInstance.updateProgress(); // Update completion percentage
-        await formInstance.save();
+        instance.data = data;
+        instance.analysisStatus = 'in progress';
+        instance.updateProgress();
+        await instance.save();
 
-        res.status(200).json(formInstance);
+        res.status(200).json(instance);
     } catch (error) {
-        res.status(500).json({ message: 'Error updating form instance', error });
+        res.status(500).json({ message: 'Error al editar la instancia', error });
     }
 }
+
 export const getFormInstanceById = async (req, res) => {
-    const { id } = req.params;
+    const instance= req.instance
 
     try {
-        const formInstance = await FormInstance.findById(id);
-        if (!formInstance) {
-            return res.status(404).json({ message: 'Form instance not found' });
+        if (!instance) {
+            return res.status(404).json({ message: 'Instancia no encontrada' });
         }
 
-        res.status(200).json(formInstance);
+        res.status(200).json(instance);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching form instance', error });
+        res.status(500).json({ message: 'Error al obtener la instancia', error });
     }
 }
-export const getFormInstancesByProject = async (req, res) => {
+
+export const getAllInstances = async (req, res) => {
     const { projectId } = req.params;
+    const { status } = req.query
 
     try {
-        const formInstances = await FormInstance.find({ projectId });
-        res.status(200).json(formInstances);
+        const formInstances = await FormInstance.find({ projectId, status })
+                                                .populate({ path: 'articleId', select: 'title' })
+                                                .populate({ path: 'assignmentId', select: 'reviewerId' });
+        res.status(200).json(formInstances); 
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching form instances', error });
+        res.status(500).json({ message: 'Error al obtener las instancias', error });
     }
 }
 
-    

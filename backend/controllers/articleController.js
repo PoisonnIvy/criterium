@@ -1,65 +1,109 @@
 import Article from '../models/article.js';
 
-
-//aun no se como voy a mandejar los articuos, si una coleccion por projecto o todos en una sola coleccion...
-// si fuera por projecto basta con el id del articulo, si es una sola coleccion se debe crear un indice por projecto
-//cambia la request segun eso, revisar
 export const addArticle = async (req, res) => {
-    const { projectID } = req.params;
-    const { articleId } = req.body;
+    const projectId = req.project._id;
+    const userId = req.session.userId;
+    const { title, tags, abstract, 
+            source, pdfPath, OA_URl,
+            doi, doiUrl, otherIdentifiers,
+            publicationType, metadata} = req.body;
+
 
     try {
-        const updatedBaseForm = await baseForm.findByIdAndUpdate(
-            id,
-            { $addToSet: { articles: articleId } },
-            { new: true }
-        );
-        if (!updatedBaseForm) {
-            return res.status(404).json({ message: 'Base form not found' });
-        }
-        res.status(200).json(updatedBaseForm);
+        const newArticle = new Article({
+            title,tags,abstract,
+            source, pdfPath, OA_URl,
+            doi, doiUrl, otherIdentifiers,
+            publicationType, metadata,
+            projectId, addedBy: userId, 
+        });
+        await newArticle.save();
+        res.status(201).json({ message: 'Artículo añadido exitosamente', project: newArticle });
     } catch (error) {
-        res.status(500).json({ message: 'Error adding article', error });
+        res.status(500).json({ message: 'Error al añadir el artículo', error });
     }
 }
+
+
 export const removeArticle = async (req, res) => {
-    const { id } = req.params;
-    const { articleId } = req.body;
 
     try {
-        const removedArticle = await Article.findByIdAndUpdate(id);
-        if (!removedArticle) {
-            return res.status(404).json({ message: 'Article not found' });
-        }
-        res.status(200).json({message:'Article removed'});
+        await Article.findByIdAndDelete(req.article._id);
+        res.status(204).json({message:'Articulo eliminado exitosamente'});
     } catch (error) {
-        res.status(304).json({ message: 'Error removing article', error });
+        res.status(500).json({ message: 'Error al eliminar el artículo', error });
     }
 }
+
+export const updateArticle = async (req, res) => {
+    const article = req.article;
+    const modifiedBy = req.session.userId;
+    const fields = ['title', 'tags', 'abstract',
+        'source', 'pdfPath', 'OA_URl',
+        'doi', 'doiUrl', 'otherIdentifiers',
+        'publicationType', 'metadata'];
+    const updatedFields={};
+    
+    try {
+        fields.forEach(field => {
+            if (req.body[field] !== undefined) {
+                article[field] = req.body[field];
+                updatedFields[field]= req.body[field];
+            }
+        });
+
+        article.modifiedBy=modifiedBy;
+
+        await article.save();
+        res.status(200).json({message:'Cambios guardados exitosamente', changed:updatedFields})
+    } catch (error) {
+        res.status(500).json({message:'Ha ocurrido un error al actualizar el artículo', error})
+    }
+       
+
+}
+    
 
 export const markArticle = async (req, res) => {
-    const { id } = req.params;
-    const { articleId, status } = req.body;
+    const article = req.article;
+    const userId = req.session.userId;
+    const {status} = req.body
 
     try {
-        const updatedArticle = await Article.findByIdAndUpdate(
-            id,
-            { $set: { status: status } },
-            { new: true }
-        );
-        if (!updatedArticle) {
-            return res.status(404).json({ message: 'Article not found' });
+        if (!['pendiente', 'aceptado', 'descartado'].includes(status)) {
+            return res.status(400).json({ message: 'Estado no válido' });
         }
-        res.status(200).json(updatedArticle);
+        article.status = status;
+        article.modifiedBy = userId;
+        const updatedArticle = await article.save();
+        res.status(200).json({message:'Estado actualizado', new_value:`${updatedArticle.status}` });
     } catch (error) {
-        res.status(500).json({ message: 'Error marking article', error });
+        res.status(500).json({ message: 'Erroral marcar el artículo', error });
     }
 }
+
+
 export const getArticles = async (req, res) => {
+    
     try {
-        const articles = await Article.find();
+        const articles = await Article.find({projectId: req.project._id});
         res.status(200).json(articles);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching articles', error });
+        res.status(500).json({ message: 'Error al obtener los artículos', error });
     }
 }
+export const getArticleById = async (req, res) => {
+    const article= req.article;
+
+    try {
+        if (!article) {
+            return res.status(404).json({ message: 'Articulo no encontrado' });
+        }   
+        res.status(200).json(article);
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Error al obtener el artículo', error });
+    }
+}
+
+

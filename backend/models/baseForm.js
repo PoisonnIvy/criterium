@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const baseFormSchema = new mongoose.Schema({
+    projectId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Project",
+        required: true,
+    },
     fields: [{
         type: { 
             type: String, 
@@ -13,16 +18,10 @@ const baseFormSchema = new mongoose.Schema({
         },
         options:{
             type: [String],
-            required: true,
         }, // Para select/multiselect
-        placeholder: String,
         helpText: String,
     }],
-    projectId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Project",
-        required: true,
-    },
+    
     //cada vez que se edite el formulario base se tiene que 
     //cambiar el status y el estado de isActive para evitar ediciones simultaeneas
     //cada vez que se edite se cambia el numero de version y se guarda el id del ultimo que editó
@@ -47,10 +46,6 @@ const baseFormSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
-    unique:{
-        type: Boolean,
-        default: false,
-    },
     comments:[{
         userId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -72,10 +67,7 @@ const baseFormSchema = new mongoose.Schema({
         },
     }]
 });
-baseFormSchema.index({ projectId: 1, unique: 1 }, { 
-  unique: true, 
-  partialFilterExpression: { unique: true } 
-});
-
+baseFormSchema.index({ projectId: 1 }, { unique: true });
+baseFormSchema.index({ "comments._id": 1 });
 const BaseForm = mongoose.model("BaseForm", baseFormSchema);
 export default BaseForm;

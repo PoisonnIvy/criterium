@@ -32,7 +32,6 @@ const projectSchema = new mongoose.Schema({
             required: true
         },
         joinedAt: { type: Date, default: Date.now },
-        isActive: { type: Boolean, default: true },
        
     },{ _id : false }],
     
@@ -46,7 +45,7 @@ projectSchema.index({ leaderId: 1 });
 // Método que retorna el rol del usuario
 projectSchema.methods.getUserRole = function(userId) {
   const member = this.members.find(m => 
-    m.userId.toString() === userId.toString() && m.isActive
+    m.userId.toString() === userId.toString()
   );
   
   return member ? member.role : null;

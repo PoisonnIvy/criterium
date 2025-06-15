@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db_config.js';
 import MongoStore from 'connect-mongo';
 import session from 'express-session';
-import { Projects, Auth, BaseForm, Assignments, Articles } from './routes/index.js';
+import { Projects, Auth, BaseForm, Assignments, Articles, FormInstances } from './routes/index.js';
 //import sendSimpleMessage from './utils/mail.js';
 const app = express();
 dotenv.config();
@@ -13,7 +13,7 @@ dotenv.config();
 app.use(
   cors({
     origin: [process.env.CLIENT_URL],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST","PATCH", "PUT", "DELETE"],
     credentials: true,
   })
 );
@@ -40,10 +40,11 @@ app.use(session({
 
 //RUTAS
 app.use("/auth", Auth);
-app.use("/api", Projects);
-app.use("/api", BaseForm);
-app.use("/api", Assignments);
-app.use("/api", Articles);
+app.use("/proyecto", Projects);
+app.use("/formulario", BaseForm);
+app.use("/instancia", FormInstances);
+app.use("/asignacion", Assignments);
+app.use("/articulos", Articles);
 
 
 

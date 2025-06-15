@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Article from '../models/Article.js';
+import Article from '../models/article.js';
 export const getwebArticles = async (req, res) => {
     try {
         const webArticles = await axios.get('https://api.example.com/web-articles');

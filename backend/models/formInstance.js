@@ -9,16 +9,25 @@ const formInstanceSchema = new mongoose.Schema({
     articleId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Article', 
-        required: true 
+        required: true, 
+        unique: true
     },
     baseFormId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'BaseForm', 
         required: true 
     },
+    assignmentId: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Assignment', 
+        required: true 
+    },
     
     data: [{
-        fieldId: { type: String, required: true },
+        fieldId: { 
+            type: mongoose.Schema.Types.ObjectId,
+            //ref: 'BaseForm[{field._id}]',
+        },
         value: mongoose.Schema.Types.Mixed, 
         extractedBy: { 
             type: mongoose.Schema.Types.ObjectId, 
@@ -28,8 +37,8 @@ const formInstanceSchema = new mongoose.Schema({
     }],
     analysisStatus: { 
         type: String, 
-        enum: ['not_started', 'in_progress', 'completed'], 
-        default: 'not_started' 
+        enum: ['not started', 'in progress', 'completed'], 
+        default: 'not started' 
     },
     completionPercentage: { 
         type: Number, 
@@ -40,8 +49,10 @@ const formInstanceSchema = new mongoose.Schema({
     timestamps: true, //createdAt, updatedAt 
 }); 
 
-formInstanceSchema.index({ articleId: 1 }, { unique: true });
+formInstanceSchema.index({ projectId: 1, baseFormId:1});
+formInstanceSchema.index({ projectId: 1, assingmentId: 1 });
 formInstanceSchema.index({ projectId: 1, analysisStatus: 1 });
+formInstanceSchema.index({ projectId: 1, _id:1});
 
 formInstanceSchema.methods.updateProgress = function() {
   const totalFields = this.data.length;

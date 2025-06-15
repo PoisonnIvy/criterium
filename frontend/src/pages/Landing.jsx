@@ -1,4 +1,4 @@
-import React from 'react'
+import Button from '@mui/joy/Button'
 import { Link } from 'react-router-dom';
 
 const Landing = () => {
@@ -6,19 +6,14 @@ const Landing = () => {
   return (
     <>
     <div>henlo</div>
-            <embed
-          src="https://cataas.com/cat"
-          width="600"
-          height="400"
-          type="image/jpg"
-          ></embed>
+
     <Link to="/login">
-      <button>Login</button>
+      <Button variant='solid'>Login</Button>
     </Link>
+
     <Link to="/signup">
-      <button>Sign Up</button>
+      <Button variant='soft'>Sign Up</Button>
     </Link>
-    
     
     </>
   )

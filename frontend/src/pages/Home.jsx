@@ -11,7 +11,7 @@ const Home = () => {
 
   useEffect(() => {
     if (username && !sessionStorage.getItem("welcomed")) {
-      toast(`Hello ${username}`, { position: "top-right" });
+      toast(`Hola ${username}!`, { position: "top-right" });
       sessionStorage.setItem("welcomed", "true");
     }
   }, [username]);
@@ -29,20 +29,14 @@ const Home = () => {
       console.error("Logout error:", err);  
     }
   };
+
+
+
   return (
     <>
       <div className="home_page">
-        <h4>
-          {" "}
-          Welcome <span>{username}</span>
-        </h4>
-        <embed
-          src="https://cataas.com/cat"
-          width="600"
-          height="400"
-          type="image/jpg"
-          ></embed>
-        <button onClick={handleLogout}>LOGOUT</button>
+       <button onClick={() => navigate("/project")}>Proyectos</button>
+        <button onClick={handleLogout}>Logout</button>
       </div>
       <ToastContainer />
     </>

@@ -14,7 +14,6 @@ const assignmentSchema = new mongoose.Schema({
     reviewerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true,
     },
     // can be self assigned or by another user
     assignedBy: { 
@@ -22,29 +21,25 @@ const assignmentSchema = new mongoose.Schema({
         ref: 'User', 
         required: true 
     },
-  
+  //estado pendiente para cuando se revoca la asignación y queda a la espera de ser reasignada
     status: { 
         type: String, 
-        enum: ['active', 'completed', 'cancelled'], 
-        default: 'active' 
+        enum: ['asignado', 'completado', 'cancelado', 'no asignado', 'pendiente'], 
+        default: 'asignado' 
     },
 
     assignedAt: { type: Date, default: Date.now },
     completedAt: Date,
-    notes: String,
     priority: { 
         type: String, 
-        enum: ['low', 'medium', 'high'], 
-        default: 'medium' 
+        enum: ['baja', 'media', 'alta'], 
+        default: 'media' 
     }
 }, {
     timestamps: true,
 });
 
-assignmentSchema.index({ articleId: 1, status: 1 }, { 
-  unique: true, 
-  partialFilterExpression: { status: 'active' } 
-});
+assignmentSchema.index({ articleId: 1}, { unique: true, });
 assignmentSchema.index({ assignedTo: 1, status: 1 });
 assignmentSchema.index({ projectId: 1, status: 1 });
 

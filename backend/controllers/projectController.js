@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import Project from '../models/Project.js';
+import Project from '../models/project.js';
 
 
 export const createProject = async (req, res) => {
@@ -37,15 +37,14 @@ export const createProject = async (req, res) => {
 //  segun su rol o el estado del proyecto
 export const getProjects = async (req, res) => {
     const userId = req.session.userId;
-    const { role, status } = req.query;
+    const {role} =req.query;
+
     try {
-        let filter = { "members.userId": new mongoose.Types.ObjectId(userId) };
+        let filter = { "members.userId": new mongoose.Types.ObjectId(`${userId}`) };
         if (role) {
-            filter = { members: { $elemMatch: { userId: new mongoose.Types.ObjectId(userId), role } } };
+            filter= {members: { $elemMatch: { userId:userId, role } }};
         }
-        if (status) {
-            filter.status = status;
-        }
+        
         const projects = await Project.find(filter).populate('members.userId', '_id name email');
         res.status(200).json(projects);
     } catch (error) {
@@ -54,7 +53,12 @@ export const getProjects = async (req, res) => {
 };
 
 export const getProjectById = async (req, res) => {
-    res.status(200).json(req.project);
+    try {
+        const project = await req.project.populate('members.userId', 'name email');
+        res.status(200).json(project);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener el proyecto', error });
+    }
 };
 
 
@@ -72,7 +76,6 @@ export const updateProject = async (req, res) => {
           ]  
         }
     */
-
 
     if (!['leader', 'editor'].includes(userRole)) {
         return res.status(403).json({ message: 'No tienes permisos para editar el proyecto' });
