@@ -20,9 +20,24 @@ export const addAssignment = async (req, res) => {
 
     try {
             const baseform= await BaseForm.findOne({ projectId });
-            if (!baseform) {
+            if (baseform === null) {
                 return res.status(404).json({ message: 'Formulario base no encontrado' });
             }
+
+            let assignment = await Assignment.findOne({ projectId, articleId });
+            if (assignment) {
+                // Si ya existe y está "no asignado", reasignar
+                if (assignment.status === 'no asignado') {
+                    assignment.reviewerId = reviewerId;
+                    assignment.status = 'asignado';
+                    assignment.assignedBy = userId;
+                    await assignment.save();
+                    return res.status(200).json(assignment);
+                } else {
+                    return res.status(409).json({ message: 'Ya existe una asignación para este artículo.' });
+                }
+            }
+
 
             const data = baseform.fields.map(field => ({
                 fieldId: field._id,
@@ -57,18 +72,18 @@ export const addAssignment = async (req, res) => {
     }
 }
 
+//enpoint para quitar una asignacion a un articulo, 
+//pero tambien se puede cambiar el revior si es lider o editor
 
 export const removeAssignment = async (req, res) => {
+    const project = req.project;
     const assignment=req.assignment;
     const change  = req.query.change === 'true';
     const { reviewerId } = req.body;
     const userId = req.session.userId;
     const role= req.userRole
-
-    
-
     try {
-        if(reviewerId && change && (role ==='leader' || role === 'editor')) {
+        if(reviewerId && change && (role ==='investigador principal' || role === 'editor')) {
             const member= project.getUserRole(reviewerId);
             if (!member) return res.status(403).json({ message: 'El revisor asignado no pertenece al proyecto' });
             assignment.reviewerId = reviewerId;
@@ -77,7 +92,6 @@ export const removeAssignment = async (req, res) => {
             assignment.reviewerId = null;
             assignment.status = 'no asignado';
         }
-
         assignment.assignedBy = userId;
         await assignment.save();
     } catch (error) {
@@ -93,7 +107,7 @@ export const getAllAssignments = async (req, res) => {
         const filter={projectId};
         if(status) filter.status = status;
         const assignments = await Assignment.find(filter)
-            .populate({ path: 'articleId', select: 'title' })
+            .populate({ path: 'articleId', select: 'title OA_URL pdf_path keywords doiUrl' })
             .populate({ path: 'reviewerId', select: 'name email' })
 
         res.status(200).json(assignments);
@@ -106,10 +120,11 @@ export const updateAssignment = async (req, res) => {
     const assignment = req.assignment;
     const { status, priority } = req.body;
     const userId=req.session.userId;
+    const userRole = req.userRole;
     const assignee = assignment.reviewerId;
 
 
-    if(!(userId == assignee)){
+    if(!(userId.toString() === assignee.toString() || ['investigador principal','editor'].includes(userRole))){
         return res.status(403).json({message:'No tienes permiso para modificar esta asignación'});
     }
 
@@ -120,7 +135,7 @@ export const updateAssignment = async (req, res) => {
     if (status==='completado') {
         assignment.completedAt = Date.now()
         assignment.status = status;
-    }else assignment.status = status;
+    }else if(status)assignment.status = status;
         
     if (priority) assignment.priority = priority;
 

@@ -3,8 +3,7 @@ import Project from '../models/project.js';
 import FormInstance from '../models/formInstance.js';
 import Article from '../models/article.js';
 import Assignment from '../models/assignment.js';
-
-
+import { baseformTokenCache } from '../index.js';
 /* middleware que verifica si el usuario es 
 parte de un proyecto y su rol dentro del mismo
 
@@ -16,7 +15,7 @@ carga en el req lo siguiente:
 - req.article: el artículo si se está accediendo a uno
 - req.assignment: la asignacion del articulo
 
-***todo en base al id que se pasa en la url, asi que hay que 
+***esto es en base al id que se pasa en la url, asi que hay que 
 fijar bien los nombres de los ids que se pasan por la url***
 */
 
@@ -24,8 +23,8 @@ export const isMember = (roleList = []) => async (req, res, next) => {
     const userId = req.session.userId;
     const{ projectId,baseFormId, instanceId, articleId, assignmentId } = req.params;
 
-    if(!projectId) return res.status(417).json({ message: 'Falta el id del proyecto' });
-    
+
+    if(!projectId || projectId ==null || projectId == undefined) return res.status(417).json({ message: 'Falta el id del proyecto' });
     const project = await Project.findById(projectId);
     if (!project) return res.status(404).json({ message: 'Proyecto no encontrado' });
     
@@ -44,7 +43,11 @@ export const isMember = (roleList = []) => async (req, res, next) => {
     if(instanceId){
         const instance= await FormInstance.findById(instanceId);
         if(!instance) return res.status(404).json({message:'Instancia no encontrada'});
-        if(instance.projectId.toString() !== projectId) return res.status(403).json({message: 'Referencia de proyecto erronea'});
+        if(instance.projectId.toString() !== projectId) return res.status(403).json({message: 'Referencia de proyecto erronea'});  
+        if (instance && instance.assignmentId) {
+            const assignment = await Assignment.findById(instance.assignmentId);
+            if (assignment) req.assignment = assignment;
+        }
         req.instance = instance;
     }
 
@@ -52,7 +55,6 @@ export const isMember = (roleList = []) => async (req, res, next) => {
         const baseForm = await BaseForm.findById(baseFormId);
         if (!baseForm) return res.status(404).json({ message: 'Formulario base no encontrado' });
         if (baseForm.projectId.toString() !== projectId) return res.status(403).json({ message: 'Referencia de proyecto erronea' });
-        if (baseForm.status === 'editing' || !baseForm.isActive) return res.status(423).json({ message: 'El formulario base está siendo editado por otro usuario' });
         req.baseForm = baseForm;
 
     }
@@ -71,46 +73,48 @@ export const isMember = (roleList = []) => async (req, res, next) => {
         req.assignment = assignment;
     }
 
-    return next();
+    next();
 };
 
 
+export const projectAccess = (req,res,next) =>{
+    const project = req.project;
 
-/*  funcion para bloquear un formulario base para que
-    solo un usuario pueda editarlo a la vez    */
-
-export const setEditingStatus = async (req, res, next) => {
-    const userId = req.session.userId;
-    const baseForm = req.baseForm; 
-    const userRole = req.userRole; 
-
-    try {
-        if (!baseForm) {
-            return res.status(404).json({ message: 'Formulario base no encontrado' });
-        }
-        if (!['leader', 'editor'].includes(userRole)) {
-            return res.status(403).json({ message: 'No tienes permisos para editar este formulario base' });
-        }
-        if (!baseForm.isActive || baseForm.status === "editing") {
-            return res.status(423).json({ message: 'El formulario está siendo editado por otro usuario' });
-        }
-
-        baseForm.status = "editing";
-        baseForm.isActive = false;
-        baseForm.updatedBy = userId;
-        await baseForm.save();
-
-        req.baseForm = baseForm;
-        next();
-    } catch (error) {
-        res.status(500).json({ message: 'Error al bloquear el formulario base', error });
+    if(['completado','deshabilitado'].includes(project.status)) {
+        return res.status(403).json({message:'Este proyecto no se encuentra activo'});
     }
+    next();
+}
+
+/* Valida el token para editar el formulario base. se le pasa el token por query y se retorna el estado*/
+
+
+export const validateToken = (req, res, next) => {
+    const baseForm = req.baseForm;
+    const { token } = req.query;
+    
+    const cachedCode = baseformTokenCache.get(baseForm._id.toString());
+    
+    if (!cachedCode) {
+        return res.status(400).json({ message: "El token expiró o es inválido" });
+    }
+    
+    if (cachedCode !== token) {
+        return res.status(400).json({ message: "Token de modificación inválido" });
+    }
+    
+    next();
 };
+
+
+/* valida el acceso a una determinada instancia o asignación para poder editar su información*/
 
 export const instanceAccess = async (req, res, next) => {
     const userId = req.session.userId;
-    const assignment = req.assignment;
-    const instance = await FormInstance.findOne({ projectId: assignment.projectId, assignmentId: assignment._id });
+    const project = req.project
+    const assignment = req.assignment
+    const instance =  await FormInstance.findOne({ projectId: project._id, assignmentId: assignment._id })
+                                        .populate({ path: 'articleId', select: 'title pdfPath OA_URL doiUrl tags' });
 
     if(instance.assignmentId.toString() !== assignment._id.toString()) {
         return res.status(403).json({ message: 'Referencia de instancia erronea con respecto a la referecia de asignación' });
@@ -120,14 +124,18 @@ export const instanceAccess = async (req, res, next) => {
         }
     }
     const article = await Article.findById(assignment.articleId);
-    if (article._id.toString() !== instance.articleId.toString()) {
+    if (article._id.toString() !== instance.articleId._id.toString()) {
         return res.status(404).json({ message: 'Articulo no encontrado o no pertenece a esta instancia' });
     }
     req.article = article;
     req.instance = instance;
 
+
     return next();
 }
+
+
+// valida si es el revisor asignado al artículo para poder quitarse la asignacion
 
 export const isReviewer = async (req, res, next) => {
     const userId = req.session.userId;

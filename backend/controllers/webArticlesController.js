@@ -1,29 +1,26 @@
-import axios from 'axios';
-import Article from '../models/article.js';
-export const getwebArticles = async (req, res) => {
-    try {
-        const webArticles = await axios.get('https://api.example.com/web-articles');
-        res.status(200).json(webArticles);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
+import { checkOpenAccessService } from '../services/unpaywall.js';
+import { searchWorksService } from '../services/crossref.js';
 
-export const webArticleREGEXsearch = async (req, res) => {
-    const { regex } = req.params;
+export const searchWorks = async (req, res) => {
+    const { title, page = 1, limit = 10, filter} = req.query;
     try {
-        const webArticles = await axios.get(`https://api.example.com/web-articles/${regex}`);
-        res.status(200).json(webArticles);
+        const result = await searchWorksService({ title, page, limit, filter});
+        res.status(200).json(result);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Crossref error:', error?.response?.data || error.message || error);
+        res.status(500).json({ status: 'error', error: error?.response?.data || error.message || error });
     }
-}
-export const savewebArticle = async (req, res) => {
-    const { title, content } = req.body;
+};
+
+export const checkOpenAccess = async (req, res) => {
+    const articles = req.body;
+    if (!Array.isArray(articles) || articles.length === 0) {
+        return res.status(400).json({ error: 'El body debe ser un array de DOIs' });
+    }
     try {
-        const webArticle = await Article.save({ title, content });
-        res.status(201).json(webArticle);
+        const results = await checkOpenAccessService(articles);
+        res.status(201).json({ results });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: 'Error consultando OpenAccess', details: error.message });
     }
-}
+};

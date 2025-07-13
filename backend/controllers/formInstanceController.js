@@ -19,7 +19,8 @@ export const createFormInstance = async ({ projectId, articleId, baseFormId, ass
 }
 
 export const editFormInstance = async (req, res) => {
-    instance = req.instance;
+    const instance = req.instance;
+    const userId = req.session.userId;
     const { data } = req.body;
     const { status } = req.query;
 
@@ -27,34 +28,32 @@ export const editFormInstance = async (req, res) => {
         if (!instance) {
             return res.status(404).json({ message: 'Instancia de formulario no encontrada' });
         }
-        if (status && status === 'completed') {
+        if (status && status === 'completado') {
                 instance.markAsCompleted();
-                await instance.save();
-                res.status(200).json(instance);
-        }
-
+        } else instance.analysisStatus = 'en curso';
         instance.data = data;
-        instance.analysisStatus = 'in progress';
+        instance.data = data.map(d => ({
+                ...d,
+                extractedBy: userId
+            }));
         instance.updateProgress();
         await instance.save();
 
         res.status(200).json(instance);
     } catch (error) {
-        res.status(500).json({ message: 'Error al editar la instancia', error });
+        res.status(500);
     }
 }
 
 export const getFormInstanceById = async (req, res) => {
     const instance= req.instance
-
     try {
         if (!instance) {
             return res.status(404).json({ message: 'Instancia no encontrada' });
         }
-
         res.status(200).json(instance);
     } catch (error) {
-        res.status(500).json({ message: 'Error al obtener la instancia', error });
+        res.status(500);
     }
 }
 

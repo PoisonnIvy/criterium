@@ -1,17 +1,25 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import useAuthRedirect from "../hooks/useAuthRedirect";
+import Button from "@mui/joy/Button";
+import FormLabel  from '@mui/joy/FormLabel';
+import Input from '@mui/joy/Input';
+import IconButton from '@mui/joy/IconButton';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import {useAuth} from "../hooks/useAuth";
 
 const Login = () => {
-  useAuthRedirect({ requireAuth: false });
-  const navigate = useNavigate();  
+  const {fetchUser} = useAuth();
+  const navigate = useNavigate();
   const [inputValue, setInputValue] = useState({
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const { email, password } = inputValue;
+
 
   const handleOnChange = (e) => {
     const { name, value } = e.target;
@@ -43,9 +51,19 @@ const Login = () => {
       const { success, message } = data;
       if (success) {
         handleSuccess(message);
-        setTimeout(() => {
-          navigate("/home");
-        }, 1000);
+        fetchUser();
+        const pendingToken = localStorage.getItem('pendingInviteToken');
+        if (pendingToken) {
+          const { data } = await axios.post(
+            `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/accept/${pendingToken}`,
+            {},
+            { withCredentials: true }
+          );
+          localStorage.removeItem('pendingInviteToken');
+          navigate(`/project/${data.projectId}`);
+        } else {
+          navigate('/project');
+        }
       } else {
         handleError(message);
       }
@@ -60,34 +78,46 @@ const Login = () => {
   };
 
   return (
-    <div className="form_container">
-      <h2>Login Account</h2>
+    <div className="form-container">
+      <h2>Iniciar Sesión</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
+        <FormLabel sx={{ fontFamily: "'Josefin Sans', sans-serif" }}>Correo electrónico</FormLabel>
+        <Input
+        sx={{ fontFamily: "'Josefin Sans', sans-serif" }}
+            fullWidth 
             type="email"
             name="email"
             value={email}
-            placeholder="Enter your email"
+            placeholder="Ingresa tu correo electronico"
             onChange={handleOnChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
+        />
+        <FormLabel sx={{ fontFamily: "'Josefin Sans', sans-serif" }}>Contraseña</FormLabel>
+          <Input
+          sx={{ fontFamily: "'Josefin Sans', sans-serif" }}
+          fullWidth
+            type={showPassword ? "text" : "password"}
             name="password"
             value={password}
-            placeholder="Enter your password"
+            placeholder="Ingresa tu contraseña"
             onChange={handleOnChange}
+            endDecorator={
+              <IconButton
+                variant="plain"
+                onClick={() => setShowPassword((v) => !v)}
+                tabIndex={-1}
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            }
           />
-        </div>
-        <button type="submit">Submit</button>
-        <span>
-          Already have an account? <Link to={"/signup"}>Signup</Link>
-        </span>
+        <Button sx={{ fontFamily: "'Josefin Sans', sans-serif", 
+                      backgroundColor:'#538e56ff',
+                      color:'#fff',
+                      '&:hover':{backgroundColor:"green"}}} type="submit">Enviar</Button>
       </form>
+      <span>
+          ¿No tienes una cuenta? <Link className='a' to={"/signup"}>Regístrate</Link>
+        </span>
       <ToastContainer />
     </div>
   );

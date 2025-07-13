@@ -6,11 +6,20 @@ const baseFormSchema = new mongoose.Schema({
         ref: "Project",
         required: true,
     },
+    //por projecto
+    active:{
+        type: Boolean,
+        default: true
+    },
     fields: [{
         type: { 
             type: String, 
-            enum: ['text', 'textarea', 'number', 'select', 'multiselect', 'boolean', 'date'],
+            enum: ['textarea', 'number', 'select', 'multiselect', 'boolean', 'date'],
             required: true 
+        },
+        label:{
+            type:String,
+            default:'Sin nombre'
         },
         enabled: { 
             type: Boolean, 

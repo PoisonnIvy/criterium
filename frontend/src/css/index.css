@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap');
+
+:root {
+  font-family: 'Josefin Sans';
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: black;
+  background-color: var(--color-sage);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+/*color principal*/
+  --color-terracotta: #b56a65;
+  /*color de fondo*/
+  --color-sage: #f3f3ee;
+  /* texto titulos*/
+  --color-uno: #a22c27;
+/*select/filtros/otrosbotones*/
+  --color-dos: #4f2621;
+  /*member card background */
+  --color-highlight: #c59d9d;
+  /*botones*/
+  --color-aceptar: #538e56ff;
+  --color-cancelar:#a22b27d2;
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Josefin Sans';
+  height: 100vh; /* Altura completa de la ventana */
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  font-weight: 500;
+  color: var(--color-terracotta);
+  text-decoration: inherit;
+}
+a:hover {
+  color: var(--color-brown);
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+h2{
+  color:var(--color-uno)
+}
+
+.buttonGroup{
+  justify-content:center;
+  display: flex;
+  flex-direction: row;
+  gap:3rem;
+}
+

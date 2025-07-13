@@ -1,23 +1,24 @@
 import {Router} from 'express';  
-import { requireAuth } from '../middleware/AuthMiddleware.js';
+import { requireAuth } from '../middleware/authMiddleware.js';
 import { 
     addAssignment, 
     removeAssignment,
     getAllAssignments,
     updateAssignment
 } from '../controllers/assignmentController.js';
-import { isMember, isReviewer } from '../middleware/hasProjectAccess.js';
+import { isMember, isReviewer, projectAccess, } from '../middleware/hasProjectAccess.js';
 
 const router = Router();
 router.use(requireAuth);
 
-router.post('/project/:projectId/new/:articleId', isMember(), addAssignment);
-//ruta update solo para cambiar el estado, notas/comentarios o la prioridad. solo el revisor, edito y lider puede editar eso
-router.patch('/project/:projectId/update/:assignmentId', isMember(), updateAssignment);
+router.post('/project/:projectId/new/:articleId', isMember(), projectAccess, addAssignment);
 
-router.patch('/project/:projectId/remove/assignment/:assignmentId', isMember(), isReviewer, removeAssignment);
+router.patch('/project/:projectId/update/:assignmentId', isMember(), projectAccess, updateAssignment);
+
+router.patch('/project/:projectId/remove/assignment/:assignmentId', isMember(), projectAccess, isReviewer, removeAssignment);
 
 router.get('/project/:projectId/assignment/all', isMember(), getAllAssignments );
 
-router.patch('/project/:projectId/assignment/:assignmentId/revoke', isMember(['leader','editor']), removeAssignment); //query:
+router.patch('/project/:projectId/assignment/:assignmentId/revoke', isMember(['investigador principal','editor']), projectAccess, removeAssignment); 
+
 export default router;

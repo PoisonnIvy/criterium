@@ -7,12 +7,12 @@ const projectSchema = new mongoose.Schema({
     },
     description: {
         type: String,
-        default: "Sin descripción",
+        required: true,
     },
     status: {
         type: String,
-        enum: ["active", "completed","disabled"],
-        default: "active",
+        enum: ["activo", "completado","deshabilitado"],
+        default: "activo",
     },
     leadInvestigator: {
         type: mongoose.Schema.Types.ObjectId,
@@ -28,13 +28,14 @@ const projectSchema = new mongoose.Schema({
         },
         role: { 
             type: String, 
-            enum: ['leader','editor', 'collaborator'], 
+            enum: ['investigador principal','editor', 'colaborador'], 
             required: true
         },
         joinedAt: { type: Date, default: Date.now },
        
     },{ _id : false }],
-    
+
+    screeningCriteria: [String],
 }, {
     timestamps: true, //createdAt, updatedAt
 });
@@ -53,7 +54,7 @@ projectSchema.methods.getUserRole = function(userId) {
 
 projectSchema.methods.canEditMembers = function(userId) {
   const role = this.getUserRole(userId);
-  return ['leader', 'editor'].includes(role);
+  return ['investigador principal', 'editor'].includes(role);
 };
 
 

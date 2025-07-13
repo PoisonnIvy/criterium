@@ -1,13 +1,46 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+dotenv.config();
 import { connectDB } from './config/db_config.js';
 import MongoStore from 'connect-mongo';
 import session from 'express-session';
-import { Projects, Auth, BaseForm, Assignments, Articles, FormInstances } from './routes/index.js';
-//import sendSimpleMessage from './utils/mail.js';
+import {  Projects, Auth, BaseForm, 
+          Assignments, Articles, 
+          FormInstances, Services,
+          WebArticles} from './routes/index.js';
+import NodeCache from 'node-cache';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+
+
+export const cache = new NodeCache({ 
+  stdTTL: 3600, // 1 hora
+  checkperiod: 600, // Limpiar cada 10 minutos
+  maxKeys: 1000  }); 
+
+export const validationTokenCache = new NodeCache({ 
+  stdTTL: 3600, // 1 hora
+  checkperiod: 600, // Limpiar cada 10 minutos
+  maxKeys: 1000  }); 
+
+export const baseformTokenCache = new NodeCache({ 
+  stdTTL: 3600, // 1 hora
+  checkperiod: 600,
+  maxKeys: 1000  });
+
+export const inviteCache = new NodeCache({ 
+  stdTTL: 7 * 24 * 60 * 60, 
+  checkperiod: 600, 
+  maxKeys: 5000 });
+
+
 const app = express();
-dotenv.config();
+
 
 
 app.use(
@@ -45,14 +78,16 @@ app.use("/formulario", BaseForm);
 app.use("/instancia", FormInstances);
 app.use("/asignacion", Assignments);
 app.use("/articulos", Articles);
+app.use("/services", Services);
+app.use("/websearch", WebArticles); 
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 //conexion a la base de datos e iniciar el servidor
 connectDB().then(() => {
   app.listen(process.env.PORT, () => {
     console.log(`Server started on port ${process.env.PORT}`);
-    //sendSimpleMessage(); // Uncomment this line to send a test email when the server starts
 });
 })
 

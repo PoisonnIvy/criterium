@@ -1,7 +1,9 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -23,19 +25,21 @@ const storage = multer.diskStorage({
 
 
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype in ['application/pdf']) {
-        console.log("El archivo tiene la extension correcta")
-        cb(null, true)
+    if (file.mimetype === 'application/pdf') {
+        cb(null, true);
     } else {
-        console.log("El archivo tiene otra extension y no se permite")
-        cb(new Error({message:'Solo se permiten archivos con las siguientes extensiones: PDF, CSV, JSON'}), false)
+        cb(new Error('Solo se permiten archivos PDF'), false);
     }
 };
 
-export default upload = multer({
+
+const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 15 * 1024 * 1024,
+        fileSize: 15 * 1024 * 1024, // 15 MB
     }
 });
+
+
+export default upload;

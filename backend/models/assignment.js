@@ -21,10 +21,10 @@ const assignmentSchema = new mongoose.Schema({
         ref: 'User', 
         required: true 
     },
-  //estado pendiente para cuando se revoca la asignación y queda a la espera de ser reasignada
+
     status: { 
         type: String, 
-        enum: ['asignado', 'completado', 'cancelado', 'no asignado', 'pendiente'], 
+        enum: ['asignado','no asignado'], 
         default: 'asignado' 
     },
 

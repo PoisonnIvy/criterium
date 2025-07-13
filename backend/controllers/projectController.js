@@ -1,29 +1,26 @@
 import mongoose from 'mongoose';
 import Project from '../models/project.js';
+import { inviteCache } from '../index.js';
+import { sendProjectInvitationMail, sendGeneralMail } from "../services/mailSender.js";
+import Assignment from '../models/assignment.js';
 
 
 export const createProject = async (req, res) => {
     const userId = req.session.userId;
-    const { name, description, members } = req.body;
+    const { name, description} = req.body;
     //el campo members es un array de objetos con id de usuarios
-    // el rol por defecto al crear un proyecto es 'collaborator'
+    // el rol por defecto al crear un proyecto es 'colaborador'
 
     try {
         const leader = {
             userId,
-            role: 'leader',
+            role: 'investigador principal',
         };
-        const memberObjects = members
-            .filter(m => m.userId !== userId)
-            .map(m => ({
-                userId: m.userId,
-                role: 'collaborator'
-            }));
         const newProject = new Project({
             name,
             description,
             leadInvestigator: userId,
-            members: [leader, ...memberObjects]
+            members: [leader]
         });
 
         await newProject.save();
@@ -53,6 +50,7 @@ export const getProjects = async (req, res) => {
 };
 
 export const getProjectById = async (req, res) => {
+
     try {
         const project = await req.project.populate('members.userId', 'name email');
         res.status(200).json(project);
@@ -61,40 +59,94 @@ export const getProjectById = async (req, res) => {
     }
 };
 
+export const changeRole = async (req, res) => {
+    const project = req.project;
+    const { memberId } = req.params;
+    const { member } = req.body;
+    try {
+        await project.populate('members.userId', 'email name');
+        const member_ref = project.members.find(m => m.userId._id.toString() === member.userId);
+        if (!member_ref) {
+            return res.status(404).json({ message: 'Miembro no encontrado' });
+        }
+        const ac_role = project.getUserRole(memberId);
+        if (ac_role === 'investigador principal') return res.status(403).json({ message: 'No puedes cambiar el rol del investigador principal' });
+
+        member_ref.role = member.role;
+        await project.save();
+
+        const memberEmail = member_ref.userId.email;
+        if (memberEmail) {
+            await sendGeneralMail({
+                to: memberEmail,
+                subject: 'Tu rol ha cambiado en el proyecto',
+                title: 'Cambio de rol',
+                content: `Tu rol en el proyecto "${project.name}" ha sido cambiado a ${member_ref.role}.`
+            });
+        }
+        res.status(200).json({ message: 'Rol actualizado exitosamente' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Error al cambiar el rol', error });
+    }
+}
+
+
+
+export const removeMember = async (req, res) => {  
+    const project = req.project;
+    const { memberId } = req.params;
+
+    const role = project.getUserRole(memberId);
+
+    if( role === 'investigador principal') {
+        return res.status(403).json({ message: 'No puedes eliminar al investigador principal' });
+    }
+
+    try {
+        await project.populate('members.userId', 'email name');
+        const member_ref = project.members.find(m => m.userId._id.toString() === memberId);
+        const memberEmail = member_ref?.userId?.email;
+
+        await Assignment.updateMany(
+            { projectId: project._id, reviewerId: memberId },
+            { $set: { reviewerId: null, status: 'no asignado' } }
+        );
+
+        const before = project.members.length;
+        project.members = project.members.filter(m => m.userId._id.toString() !== memberId);
+        if (project.members.length === before) {
+            return res.status(404).json({ message: 'Miembro no encontrado' });
+        }
+        if (memberEmail) {
+            await sendGeneralMail({
+                to: memberEmail,
+                subject: 'Has sido eliminado de un proyecto',
+                title: 'Eliminación de proyecto',
+                content: `Has sido eliminado del proyecto "${project.name}".`
+            });
+        }
+        await project.save();
+        
+        return res.status(200).json({ message: 'Miembro eliminado correctamente' }); 
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Error al eliminar miembro del proyecto', error });
+    }
+}
 
 export const updateProject = async (req, res) => {
     const project = req.project;
     const userRole = req.userRole;
-    const { name, description, status, members, removeMember } = req.body;
-    /* para eliminar miembros se pasan solo los ids en un array, asi:
-    	{  "removeMember":["683a9c2e811b29ea4ac477fd","683683cd4104b16c07b12e9d"]  }
-        
-        y para añadir se pasan con su id y rol, en un array como objeto cada miembro, asi;
-        {  "members":[
-          {"userId":"683a9c2e811b29ea4ac477fd","role":"collaborator"},
-          {"userId":"683683cd4104b16c07b12e9d","role":"editor"}
-          ]  
-        }
-    */
+    const { name, description, screeningCriteria } = req.body;
 
-    if (!['leader', 'editor'].includes(userRole)) {
+    if (!['investigador principal', 'editor'].includes(userRole)) {
         return res.status(403).json({ message: 'No tienes permisos para editar el proyecto' });
     }
 
     if (name) project.name = name;
     if (description) project.description = description;
-    if (status) project.status = status;
-    if (members) {
-    const membersToAdd = Array.isArray(members) ? members : [members];
-    project.members.push(...membersToAdd);
-    }
-
-    if (removeMember) {
-        const idsToRemove = Array.isArray(removeMember) ? removeMember : [removeMember];
-        project.members = project.members.filter(member => 
-            !idsToRemove.includes(member.userId.toString())
-        );
-    }
+    if (screeningCriteria) project.screeningCriteria = screeningCriteria;
 
     try {
         await project.save();
@@ -104,18 +156,37 @@ export const updateProject = async (req, res) => {
     }
 };
 
+export const changeProjectStatus = async (req, res) => {
+    const project = req.project;
+    const {status} = req.query;
+    if(!['activo', 'deshabilitado', 'completado'].includes(status) || !status) {
+        return res.status(400).json({ message: 'Estado inválido'});
+    }
+    try {
+        project.status = status;   
+        await project.save();
+        res.status(200).json({ message: 'Estado del proyecto actualizado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al actualizar el estado del proyecto', error });
+    }
+}
+
 
 export const leaveProject = async (req, res) => {
     const project = req.project;
     const userId = req.session.userId;
     const userRole = req.userRole;
 
-    if (userRole === 'leader') {
-        return res.status(403).json({ message: 'El líder no puede abandonar el proyecto' });
+    if (userRole === 'investigador principal') {
+        return res.status(403).json({ message: 'El investigador principal no puede abandonar el proyecto' });
     }
 
- 
     try {
+
+        await Assignment.updateMany(
+            { projectId: project._id, reviewerId: userId },
+            { $set: { reviewerId: null, status: 'no asignado' } }
+        );
 
         const result = await Project.findByIdAndUpdate(
             project._id,
@@ -129,5 +200,67 @@ export const leaveProject = async (req, res) => {
         res.status(204).json({ message: 'Has abandonado el proyecto exitosamente' });
     } catch (error) {
         res.status(500).json({ message: 'Error al salir del proyecto', error });
+    }
+};
+
+
+
+
+export const inviteMember = async (req, res) => {
+    const { email, role } = req.body;
+    const username = req.session.username;
+    const project = req.project;
+
+    try {
+        const token = Math.random().toString(36).substring(2, 15);
+        inviteCache.set(token, { email, projectId: project._id, role: role || 'colaborador' });
+
+        const inviteLink = `${process.env.CLIENT_URL}/invitacion/${token}`;
+        await sendProjectInvitationMail({
+            to: email,
+            inviterName: username,
+            projectName: project.name,
+            inviteLink,
+            role: role || 'colaborador'
+        });
+
+        res.status(200).json({ message: 'Invitación enviada correctamente' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al enviar la invitación', error });
+    }
+};
+
+export const acceptInvite = async (req, res) => {
+    const { token } = req.params;
+    const userId = req.session.userId; // El usuario debe estar logueado
+
+    try {
+        const invite = inviteCache.get(token);
+        if (!invite) {
+            return res.status(400).json({ message: 'Invitación inválida o expirada' });
+        }
+
+        const project = await Project.findById(invite.projectId);
+        if (!project) {
+            return res.status(404).json({ message: 'Proyecto no encontrado' });
+        }
+
+        if (project.members.some(m => m.userId.toString() === userId)) {
+            return res.status(409).json({ message: 'Ya eres miembro del proyecto' });
+        }
+
+        project.members.push({
+            userId,
+            role: invite.role || 'colaborador'
+        });
+
+        await project.save();
+        const projectId=invite.projectId;
+
+        inviteCache.del(token);
+
+        res.status(200).json({ message: 'Te has unido al proyecto correctamente', projectId});
+    } catch (error) {
+        res.status(500).json({ message: 'Error al aceptar la invitación', error });
     }
 };

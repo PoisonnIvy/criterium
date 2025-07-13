@@ -37,8 +37,8 @@ const formInstanceSchema = new mongoose.Schema({
     }],
     analysisStatus: { 
         type: String, 
-        enum: ['not started', 'in progress', 'completed'], 
-        default: 'not started' 
+        enum: ['pendiente', 'en curso', 'completado'], 
+        default: 'pendiente' 
     },
     completionPercentage: { 
         type: Number, 
@@ -50,7 +50,7 @@ const formInstanceSchema = new mongoose.Schema({
 }); 
 
 formInstanceSchema.index({ projectId: 1, baseFormId:1});
-formInstanceSchema.index({ projectId: 1, assingmentId: 1 });
+formInstanceSchema.index({ projectId: 1, assignmentId: 1 });
 formInstanceSchema.index({ projectId: 1, analysisStatus: 1 });
 formInstanceSchema.index({ projectId: 1, _id:1});
 
@@ -61,7 +61,7 @@ formInstanceSchema.methods.updateProgress = function() {
 
 };
 formInstanceSchema.methods.markAsCompleted = function() {
-  this.analysisStatus = 'completed';
+  this.analysisStatus = 'completado';
   this.completedAt = new Date();
 };
 

@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { requireAuth } from '../middleware/AuthMiddleware.js';
-import { isMember, instanceAccess} from '../middleware/hasProjectAccess.js';
+import { requireAuth } from '../middleware/authMiddleware.js';
+import { isMember, instanceAccess, projectAccess} from '../middleware/hasProjectAccess.js';
 import {
     editFormInstance,
     getFormInstanceById,    
@@ -16,8 +16,8 @@ siempre que se pase el parametro status=completed en la query
 2- Endpoint para obtener la instancia de formulario por id y siempre que el usuario sea el asignado
 3- Endpoint para obtener todas las instancias de formulario de un proyecto
 */
-router.patch('/project/:projectId/instance/edit/:instanceId', isMember(), instanceAccess, editFormInstance);
-router.get('/project/:projectId/instance/:assignmentId', isMember(),instanceAccess, getFormInstanceById);
+router.patch('/project/:projectId/instance/edit/:instanceId', isMember(),projectAccess, instanceAccess, editFormInstance);
+router.get('/project/:projectId/instance/:assignmentId', isMember(), instanceAccess, getFormInstanceById);
 router.get('/project/:projectId/instances', isMember(), getAllInstances);
 
 

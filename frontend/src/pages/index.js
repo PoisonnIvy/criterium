@@ -1,6 +1,5 @@
-export {default as Home} from './Home'
 export {default as Login} from './Login'
 export {default as Signup} from './Signup'
-export {default as Landing} from './Landing'
 export {default as Project} from './Project'
-export {default as ProjectDetail} from './ProjectDetails'
+export {default as Profile} from './Profile'
+export {default as Analize} from './AnalizeArticle'
