@@ -46,6 +46,7 @@ export default function BasicFormModal({open, onClose, title, description, field
                 ) : field.type === 'checkbox' ? (
                   <Switch
                     checked={!!values[field.name]}
+                    color={values[field.name] ? 'success' : 'neutral'}
                     onChange={e => onChange({ target: { name: field.name, value: e.target.checked } })}
                   />
                 ) : (
@@ -60,10 +61,8 @@ export default function BasicFormModal({open, onClose, title, description, field
               </FormControl>
             ))} 
             <div className='buttonGroup'>
-            <Button type="submit">Enviar</Button>
-            <Button sx={{backgroundColor:'#a22c27', '&:hover': {
-                        backgroundColor: '#8b1f1b'
-                        }}}onClick={onClose}>Cancelar</Button>
+            <Button type="submit" color='success'>Enviar</Button>
+            <Button color='danger' onClick={onClose}>Cancelar</Button>
             </div>
           </Stack>
          

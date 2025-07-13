@@ -265,12 +265,13 @@ const ProjectLoadFile = () => {
       <h2 sx={{ mb: 1, color: 'var(--color-terracotta)', fontWeight: 700 }}>
         Documentos locales
       </h2>
-      <Typography level='body-lg' sx={{ mb: 1, fontFamily:'Josefin Sans' }}>
+      <p>
         En esta sección puedes subir metadatos en formato .RIS, así como también puedes cargar artículos en formato .PDF.
-      </Typography>
-      <Typography level='body-md' sx={{ mb: 3, fontFamily:'Josefin Sans'}}>
+      </p>
+      <p>
         Selecciona el tipo de archivo que quieras subir:
-      </Typography>
+      </p>
+    <Divider />
 
       <Stack
         direction={{ xs: 'column', md: 'row' }}
@@ -278,9 +279,8 @@ const ProjectLoadFile = () => {
         sx={{
           justifyContent: 'space-evenly',
           alignItems: 'stretch',
-          p: { xs: 2, md: 4 },
+          p: { xs: 2, md: 4 , mt: 2},
           borderRadius: 3,
-          boxShadow: 'sm',
           mb: 4,
           gap: 4
         }}
@@ -301,8 +301,8 @@ const ProjectLoadFile = () => {
         >
           <Box
             sx={{
-              minWidth: 180,
-              minHeight: 120,
+              minWidth: 250,
+              minHeight: 150,
               border: dragOverMeta ? '2px solid var(--color-terracotta)' : '2px dashed #bdbdbd',
               borderRadius: 8,
               textAlign: 'center',
@@ -330,10 +330,10 @@ const ProjectLoadFile = () => {
               accept=".ris"
             />
             <UploadFileIcon sx={{ fontSize: 48, color: 'var(--color-terracotta)', mb: 1 }} />
-            <Typography level="body-xs" color="neutral" sx={{ mt: 1 }}>
+            <span>
               Tipo de archivo permitido:<br /> <b>.RIS</b><br />
               Máximo {MAX_META_FILES} archivos
-            </Typography>
+            </span>
             {metadataFiles.length > 0 ? (
               <Box>
                 {metadataFiles.map((file, idx) => (
@@ -348,7 +348,7 @@ const ProjectLoadFile = () => {
           </Box>
           <Button
             size='md'
-            color="primary"
+            color="success"
             variant="solid"
             onClick={handleShowParsedMetadata}
             disabled={isBlocked || metadataFiles.length === 0}
@@ -360,7 +360,6 @@ const ProjectLoadFile = () => {
             <Button
               size='md'
               color='danger'
-              variant="soft"
               onClick={() => setMetadataFiles([])}
               sx={{ width: '100%' }}
             >
@@ -385,8 +384,8 @@ const ProjectLoadFile = () => {
         >
           <Box
             sx={{
-              minWidth: 180,
-              minHeight: 120,
+              minWidth: 250,
+              minHeight: 150,
               border: dragOverArticle ? '2px solid var(--color-terracotta)' : '2px dashed #bdbdbd',
               borderRadius: 8,
               textAlign: 'center',
@@ -413,10 +412,10 @@ const ProjectLoadFile = () => {
               accept=".pdf"
             />
             <UploadFileIcon sx={{ fontSize: 48, color: 'var(--color-terracotta)', mb: 1 }} />
-            <Typography level="body-xs" color="neutral" sx={{ mt: 1 }}>
+            <span>
               Tipo de archivo permitido: <br /><b>.PDF</b><br />
               Máximo {MAX_ARTICLE_FILES} archivos
-            </Typography>
+            </span>
             {articleFiles.length > 0 ? (
               <Box>
                 {articleFiles.map((file, idx) => (

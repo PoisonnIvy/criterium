@@ -232,14 +232,14 @@ return (
                   )}
                 <Stack direction='row' gap='10px'>
                    { a.reviewerId===user.userId  &&
-                   <Button disabled={isBlocked} size='md' sx={{ maxWidth: 200, height: 50 }} onClick={() => handleRemove(a._id)}>Eliminar asignación</Button> }
+                   <Button disabled={isBlocked} color='danger' size='md' sx={{ maxWidth: 200, height: 50 }} onClick={() => handleRemove(a._id)}>Eliminar asignación</Button> }
                   {a.reviewerId?._id === user.userId && (
-                      <Button disabled={isBlocked} size='md' sx={{ maxWidth: 200, height: 50 }} onClick={() => navigate(`/analize/${a._id}/${projectId}/${a.articleId._id}`)}>
+                      <Button disabled={isBlocked} color='secondary' size='md' sx={{ maxWidth: 200, height: 50 }} onClick={() => navigate(`/analize/${a._id}/${projectId}/${a.articleId._id}`)}>
                         Analizar artículo
                       </Button> 
                   )}
                  
-                  <Button disabled={isBlocked} size='md' sx={{maxWidth:200, height:50}} onClick={()=>handleEditMetadata(a.articleId._id)}>Editar metadatos</Button>
+                  <Button disabled={isBlocked} size='md' color='secondary' sx={{maxWidth:200, height:50}} onClick={()=>handleEditMetadata(a.articleId._id)}>Editar metadatos</Button>
                   <Box sx={{ mb: 2, display:'flex', flexDirection:'column'}}>
                           <label htmlFor="priority-select" style={{ marginRight: 8 }}>Cambiar prioridad</label>
                           <Select

@@ -87,9 +87,9 @@ export default function Project () {
 
 return (
 <Box sx={{p:5}} >
-<Stack direction='row' spacing={10}>
-<h2>Mis Proyectos</h2>
-<Button onClick={() => setShowModal(true)} startDecorator={<Add />} sx={{background: '#4f2621'}}>
+<Stack direction='row' spacing={10} alignItems='center' sx={{mb:3}}>
+<h1>Mis Proyectos</h1>
+<Button size='sm' onClick={() => setShowModal(true)} startDecorator={<Add />} sx={{background: '#4f2621'}}>
 Crear nuevo proyecto</Button>
     <Dropdown>
       <MenuButton startDecorator={<ArrowDropDown/>} color='white' sx={{background: '#4f2621'}}>Filtrar por rol</MenuButton>

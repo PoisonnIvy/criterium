@@ -145,7 +145,7 @@ const isValidFields = fields.every(f => f.label && f.label.trim().length > 0);
               minRows={2}
             />
           )}
-          <Button onClick={handleAddField} disabled={!newField.type || !newField.label}>
+          <Button onClick={handleAddField} color='primary' disabled={!newField.type || !newField.label}>
             Agregar campo
           </Button>
         </Stack>
@@ -193,8 +193,8 @@ const isValidFields = fields.every(f => f.label && f.label.trim().length > 0);
           </ul>
         </Box>
         <Stack direction="row" spacing={2} mt={2}>
-          <Button variant="soft" color="neutral" onClick={onClose}>Cancelar</Button>
-          <Button onClick={handleSubmit} disabled={fields.length === 0|| !isValidFields}>
+          <Button color="danger" onClick={onClose}>Cancelar</Button>
+          <Button onClick={handleSubmit} color='success' disabled={fields.length === 0|| !isValidFields}>
             {editMode ? 'Actualizar formulario' : 'Crear formulario'}
           </Button>
         </Stack>

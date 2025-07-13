@@ -211,7 +211,7 @@ const renderField = (field, index) => {
 
 
   return (
-    <Box component="main" sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
+    <Box component="main" sx={{ p: 3, maxWidth: 1200, mx: 'auto', alignContent:'center' }}>
       <h2>Formulario del Proyecto</h2>
       <p>En esta sección deberás crear el formulario que servirá de guía para la extracción de información de los articulos para la revisión sistematica.</p>
       <Divider />
@@ -220,7 +220,7 @@ const renderField = (field, index) => {
 
         <Box sx={{ flex: 2, minWidth: 0 }}>
           {['investigador principal', 'editor'].includes(role) && !baseform.msg && (
-            <Button disabled={isBlocked} onClick={handleEditForm} sx={{ mb: 2 }}>
+            <Button disabled={isBlocked} onClick={handleEditForm} sx={{ mb: 2, bgcolor:'#4f2621' }}>
               Editar formulario
             </Button>
           )}
@@ -228,7 +228,7 @@ const renderField = (field, index) => {
             <Stack direction='column' sx={{ display: 'contents' }}>
               <Typography sx={{ p: 1 }}>{baseform.msg}</Typography>
               {['investigador principal'].includes(role) && baseform.msg && (
-                <Button disabled={isBlocked} onClick={handleCreateForm}>Crear formulario guía</Button>
+                <Button disabled={isBlocked} onClick={handleCreateForm} sx={{ bgcolor:'#4f2621' }}>Crear formulario guía</Button>
               )}
             </Stack>
           ) : (

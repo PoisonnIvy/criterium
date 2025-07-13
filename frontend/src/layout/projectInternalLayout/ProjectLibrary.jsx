@@ -208,7 +208,7 @@ const normalizeLanguage = (lang) => {
 };
 
   return (
-    <Box component="main" sx={{ p: 3, maxWidth: 1200, mx: 'auto', border: '1px dashed grey' }}>
+    <Box component="main" sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
       <h2>Artículos añadidos al proyecto</h2>
       <Box sx={{ mb: 2, display:'flex', flexDirection:'row'}}>
         <label htmlFor="filter-select" style={{ marginRight: 8 }}>Filtrar:</label>
@@ -280,7 +280,7 @@ const normalizeLanguage = (lang) => {
                     <Stack direction="row" spacing={1} alignItems="center">
                       <Button
                           size="sm"
-                          variant="outlined"
+                          variant="soft"
                           onClick={() => openArticleModal(article)}
                           startDecorator={<Visibility />}
                         >
@@ -357,18 +357,6 @@ const normalizeLanguage = (lang) => {
                             )}
                             </Stack>
                           )
-                        )}
-                        {article.doiUrl && (
-                          <Button
-                            size="sm"
-                            variant="plain"
-                            component="a"
-                            href={article.doiUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Ver artículo completo
-                          </Button>
                         )}
                     </Stack>
                   </Box>

@@ -115,23 +115,23 @@ const ProjectManage = () => {
 
   return (
   <Box component="main" sx={{ p: 5, maxWidth: 1200, mx: 'auto'}}>
-    <Stack direction='row' sx={{ gap:2, display:'flex', alignItems:'center'}}>
-      {['investigador principal','editor'].includes(role) && <Button disabled={isBlocked} onClick={() => setModalOpen(true)}>Editar detalles del proyecto</Button>}
+    <Stack direction='row' alignItems='center' sx={{mb:3}} spacing={2}>
+      {['investigador principal','editor'].includes(role) && <Button color={isBlocked? 'disabled' : 'secondary'}disabled={isBlocked} onClick={() => setModalOpen(true)}>Editar detalles del proyecto</Button>}
       {['investigador principal'].includes(role) && (project.status === 'deshabilitado' || project.status === 'completado')?
       (
-        <Button onClick={()=>handleProjectStatus('activo')}>Habilitar projecto</Button>
+        <Button color='success' onClick={()=>handleProjectStatus('activo')}>Habilitar projecto</Button>
       )
       :( <>
       
-      {['investigador principal'].includes(role) && <Button onClick={()=>handleProjectStatus('deshabilitado')}>Deshabilitar proyecto</Button>}
+      {['investigador principal'].includes(role) && <Button color='danger' onClick={()=>handleProjectStatus('deshabilitado')}>Deshabilitar proyecto</Button>}
       
-      {['investigador principal','editor'].includes(role) && <Button onClick={()=> setMembersOpen(open => !open)}>Administrar miembros</Button>}
+      {['investigador principal','editor'].includes(role) && <Button color='secondary'  onClick={()=> setMembersOpen(open => !open)}>Administrar miembros</Button>}
       
       {['investigador principal'].includes(role) && project.status!=='completado' && <Button onClick={()=>handleProjectStatus('completado')}>Marcar projecto como "Completado"</Button>}
       </>)}
 
       { ['editor','colaborador'].includes(role) && !isBlocked &&
-        <Button onClick={()=>handleLeaveProject()}>Abandonar proyecto</Button> }
+        <Button color='danger' onClick={()=>handleLeaveProject()}>Abandonar proyecto</Button> }
 
       </Stack>
       

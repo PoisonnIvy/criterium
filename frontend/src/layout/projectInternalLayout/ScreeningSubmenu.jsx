@@ -13,6 +13,7 @@ import Input from "@mui/joy/Input";
 import { useParams } from "react-router-dom";
 import { useProject } from "../../hooks/useProject";
 import ArticleDetailsModal from '../../components/ArticleDetails';
+import Visibility from '@mui/icons-material/Visibility';
 
 const ScreeningSubmenu = () => {
   const { project, articles, role, fetchArticles } = useProject();
@@ -94,11 +95,10 @@ const ScreeningSubmenu = () => {
 
   return (
     <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-      <Typography level="h3" sx={{ mb: 2 }}>Cribado de artículos</Typography>
+      <h2>Cribado de artículos</h2>
       <Stack direction="row" spacing={4} alignItems="flex-start">
         {/* Columna de artículos */}
         <Box sx={{ flex: 2 }}>
-          <Typography level="h4" sx={{ mb: 2 }}>Artículos</Typography>
           {loading ? (
             <Typography>Cargando artículos...</Typography>
           ) : (
@@ -120,18 +120,14 @@ const ScreeningSubmenu = () => {
                       {article.publicationType && <Typography level="body-xs">Tipo: {article.publicationType}</Typography>}
                       {article.publisher && <Typography level="body-xs">Publisher: {article.publisher}</Typography>}
                     </Stack>
-                    <Stack direction="row" spacing={1}>
-                      <Button size="sm" sx={{ backgroundColor:'#538e56ff',
-                                              color:'#fff',
-                                              '&:hover':{backgroundColor:"green"}}} 
-                                              onClick={() => handleAcceptArticle(article._id)}>
+                    <Stack direction="row" spacing={1} sx={{ mt: 1 , display: 'flex', justifyContent: 'space-between'}}>
+                     <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}> <Button size="sm" color="success" onClick={() => handleAcceptArticle(article._id)}>
                                                 Aceptar</Button>
-                      <Button size="sm" sx={{ backgroundColor:'#a22b27d2',
-                                              color:'#fff',
-                                              '&:hover':{backgroundColor:'darkred'}}} 
-                                              onClick={() => handleRejectArticle(article._id)}>
+                      <Button size="sm" color="danger" onClick={() => handleRejectArticle(article._id)}>
                                                 Rechazar</Button>
-                      <Button size="sm" variant="soft" onClick={() => handleOpenArticle(article)}>Ver detalles</Button>
+                      </Stack>
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                      <Button size="sm" color="secondary" onClick={() => handleOpenArticle(article)} startDecorator={<Visibility />}>Ver detalles</Button>
                       <Input  placeholder="Añadir comentario"
                               value={comments[article._id] || ""}
                               onChange={e =>
@@ -140,6 +136,7 @@ const ScreeningSubmenu = () => {
                                   [article._id]: e.target.value
                                 }))
                               } />
+                              </Stack>
                     </Stack>
                   </CardContent>
                 </Card>
@@ -151,7 +148,7 @@ const ScreeningSubmenu = () => {
 
         {/* criterios */}
         <Box sx={{ flex: 1, minWidth: 300 }}>
-          <Typography level="h4" sx={{ mb: 2 }}>Criterios de cribado</Typography>
+          <h2>Criterios de cribado</h2>
           <Stack spacing={2}>
             {criteria.map((c, idx) => (
               <Box key={idx} sx={{ p: 2, bgcolor: '#f8f8f8', borderRadius: 2 }}>
@@ -165,7 +162,7 @@ const ScreeningSubmenu = () => {
             ))}
           </Stack>
           {["investigador principal", 'editor'].includes(role) && 
-            <Button sx={{ mt: 1 }} onClick={() => setModalOpen(true)}>Editar criterios</Button>
+            <Button sx={{ mt: 1, bgcolor: '#4f2621' }} onClick={() => setModalOpen(true)}>Editar criterios</Button>
           }
         </Box>
       </Stack>

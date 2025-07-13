@@ -88,7 +88,7 @@ useEffect(() => {
             </Stack>
             <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
               <Button type="submit" color="success">Guardar cambios</Button>
-              <Button type="button" color="neutral" onClick={onClose}>Cancelar</Button>
+              <Button type="button" color="danger" onClick={onClose}>Cancelar</Button>
             </Stack>
           </Stack>
         </form>

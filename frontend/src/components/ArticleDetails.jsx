@@ -104,6 +104,7 @@ export default function ArticleDetailsModal({ open, onClose, article }) {
             {article.doiUrl && (
               <Button
                 component="a"
+                color='primary'
                 href={article.doiUrl}
                 target="_blank"
                 rel="noopener noreferrer"
