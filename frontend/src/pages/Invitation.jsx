@@ -18,11 +18,15 @@ const Invitation = () => {
         {},
         { withCredentials: true }
       );
-      if (data && data.projectId) {
-        navigate(`/project/${data.projectId}`);
+      setTimeout(() => {
+        if (data) {
+        navigate(`/project/${data.projectId.toString()}`);
       } else {
         navigate('/project');
       }
+      }, 2000);
+      console.log(data);
+      
     } catch (error) {
       navigate('/project');
       console.log(error)

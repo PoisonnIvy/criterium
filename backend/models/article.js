@@ -10,7 +10,6 @@ const articleSchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
-    tags: [String], // Array of tags for categorization (for the user)
     abstract: {
         type:String,
         default:''
@@ -93,10 +92,10 @@ const articleSchema = new mongoose.Schema({
         type: Number,
         default:0
     }, //cuantas veces ha sido citado el articulo en otros articulos
-    language: [{
+    language: {
         type: String,
         default:'',
-    }],
+    },
 
 ///status para el cribado
     status: { 

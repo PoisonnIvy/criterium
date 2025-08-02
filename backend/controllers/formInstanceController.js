@@ -1,4 +1,5 @@
 import FormInstance from "../models/formInstance.js";
+import  flatData  from "../services/flatInstances.js";
 
 export const createFormInstance = async ({ projectId, articleId, baseFormId, assignmentId, data }) => {
 
@@ -68,6 +69,18 @@ export const getAllInstances = async (req, res) => {
         res.status(200).json(formInstances); 
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener las instancias', error });
+    }
+}
+
+
+export const getTableData = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const data = await flatData(projectId);
+        return res.status(200).json(data);
+    } catch (err) {
+        console.error("Error al obtener datos para pivottable", err);
+        return res.status(500).json({ error: "Error interno del servidor" });
     }
 }
 

@@ -26,7 +26,6 @@ const formInstanceSchema = new mongoose.Schema({
     data: [{
         fieldId: { 
             type: mongoose.Schema.Types.ObjectId,
-            //ref: 'BaseForm[{field._id}]',
         },
         value: mongoose.Schema.Types.Mixed, 
         extractedBy: { 

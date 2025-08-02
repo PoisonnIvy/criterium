@@ -15,7 +15,6 @@ import Chip from '@mui/joy/Chip';
 import Checkbox from '@mui/joy/Checkbox';
 import Stack from '@mui/joy/Stack';
 import Divider from '@mui/joy/Divider';
-import IconButton from '@mui/joy/IconButton';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Skeleton from '@mui/joy/Skeleton';
@@ -23,6 +22,7 @@ import CircularProgress from '@mui/joy/CircularProgress';
 import { Search, BookmarkAdd, Visibility} from '@mui/icons-material';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { useProject } from '../../hooks/useProject';
+import { normalizeLanguage } from '../../utils/stringFormater';
 
 const ProjectArticles = () => {
   const {projectId}=useParams();
@@ -36,7 +36,6 @@ const ProjectArticles = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [totalResults, setTotalResults] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showFilters, setShowFilters] = useState(false);
   const [oa, setOa] = useState({})
   const [toast, setToast] = useState({ open: false, message: '', type: 'info' });
   const [loadDetails, setLoadDetails] = useState(false);
@@ -45,8 +44,9 @@ const ProjectArticles = () => {
   
   const [filters, setFilters] = useState({
     hasAbstract: false,
-    fromDate: '',
-    untilDate: ''
+    hasJournal: false,
+    fromDate: null,
+    untilDate: null
   });
 
   useEffect(() => {
@@ -55,24 +55,29 @@ const ProjectArticles = () => {
 
   const searchArticles = async (page = 1) => {
     if (!searchQuery.trim()) return;
+    setCurrentPage(1);
+    setArticles([]);
+    setSelectedArticles(new Set());
+    setTotalResults(0);
     
     setLoading(true);
     try {
       const params = {
         title: searchQuery,
         page: page.toString(),
-        limit: 50,
+        limit: 30,
         filter: {
           abstract: filters.hasAbstract,
+          journal: filters.hasJournal,
           yearFrom: filters.fromDate || undefined,
           yearTo: filters.untilDate || undefined,
         }
-      }
-
-      const response = await axios.get(
+      };
+      const response = await axios.post(
         `${import.meta.env.VITE_APP_SERVER_URL}/websearch/crossref/${projectId}`,
-        { params, withCredentials: true})
-      
+         params, {withCredentials: true}
+      );
+
       if(response.data.status === 'completado') {
         setArticles(response.data.works);
         setCurrentPage(page);
@@ -146,20 +151,6 @@ const ProjectArticles = () => {
     }
   };
 
-  const normalizeLanguage = (lang)=>{
-    if(lang === 'No definido' || lang === null || lang === undefined) return 'No definido'
-
-     try {
-      const displayNames = new Intl.DisplayNames(['es'], { type: 'language' });
-      const resultado = displayNames.of((lang || '').toLowerCase());
-      return resultado
-     } catch (e) {
-      console.error(e)
-      return lang;
-     }
-
-  
-  }
 
  
   const cleanAbstract = (abstract) => {
@@ -179,41 +170,40 @@ const ProjectArticles = () => {
           <Stack spacing={2}>
             <Stack direction="row" spacing={2} alignItems="end">
               <FormControl sx={{ flex: 1 }}>
-                <FormLabel>Buscar por título</FormLabel>
+                <FormLabel sx={{ fontFamily:'Josefin Sans', color: '#4f2621', fontSize: '1rem'}}>Buscar por título</FormLabel>
                 <Input
                   disabled={isBlocked}
                   placeholder="Ingresa el título del artículo..."
                   value={searchQuery}
+                  sx={{ fontFamily:'Josefin Sans', fontSize: '1rem'}}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && searchArticles()}
-                  endDecorator={
-                    <IconButton onClick={() => searchArticles()} disabled={loading}>
-                      {loading ? <CircularProgress size="sm" /> : <Search />}
-                    </IconButton>
-                  }
                 />
               </FormControl>
               <Button
-                disabled={isBlocked}
-                variant="outlined"
-                onClick={() => setShowFilters(!showFilters)}
-                startDecorator={<FilterAltIcon />}
+                disabled={isBlocked || loading}
+                sx={{background: '#4f2621', color: 'white'}}
+                onClick={() => searchArticles()} 
+                startDecorator={<Search />}
               >
-                Filtros
+                Buscar
               </Button>
             </Stack>
 
-            {/*filtros*/}
-            {showFilters && (
               <Card variant="soft">
                 <CardContent>
                   <Stack spacing={2}>
-                    <Typography level="title-sm">Filtros de búsqueda</Typography>
+                    <Typography level="title-sm"><FilterAltIcon/>Filtros de búsqueda</Typography>
                     <Stack direction="row" spacing={2} flexWrap="wrap">
                       <Checkbox
                         label="Solo con abstract"
                         checked={filters.hasAbstract}
                         onChange={(e) => setFilters({...filters, hasAbstract: e.target.checked})}
+                      />
+                       <Checkbox
+                        label="Solo tipo journals"
+                        checked={filters.hasJournal}
+                        onChange={(e) => setFilters({...filters, hasJournal: e.target.checked})}
                       />
                       <FormControl size="sm">
                         <FormLabel>Desde año</FormLabel>
@@ -236,8 +226,7 @@ const ProjectArticles = () => {
                     </Stack>
                   </Stack>
                 </CardContent>
-              </Card>
-            )}
+              </Card> 
           </Stack>
         </CardContent>
       </Card>
@@ -330,7 +319,8 @@ const ProjectArticles = () => {
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Button
                       size="sm"
-                      variant="outlined"
+                       color="primary"
+                        variant="solid"
                       onClick={() => openArticleModal(article)}
                       startDecorator={<Visibility />}
                     >

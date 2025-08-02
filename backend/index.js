@@ -7,7 +7,7 @@ import MongoStore from 'connect-mongo';
 import session from 'express-session';
 import {  Projects, Auth, BaseForm, 
           Assignments, Articles, 
-          FormInstances, Services,
+          FormInstances, 
           WebArticles} from './routes/index.js';
 import NodeCache from 'node-cache';
 import path from 'path';
@@ -60,7 +60,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.DEV_MONGO_URI,
+    mongoUrl: process.env.MONGO_URI,
     collectionName: "sessions",
   }),
   cookie: {
@@ -78,7 +78,6 @@ app.use("/formulario", BaseForm);
 app.use("/instancia", FormInstances);
 app.use("/asignacion", Assignments);
 app.use("/articulos", Articles);
-app.use("/services", Services);
 app.use("/websearch", WebArticles); 
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

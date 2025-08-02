@@ -17,6 +17,7 @@ export const ProjectProvider = ({children}) => {
   const [baseform, setBaseform] = useState({});
   const [instances, setInstances] = useState({});
   const [assignments, setAssignments] = useState({});
+  const [flatInstances, setFlatInstances] = useState({});
 
    const fetchProject = useCallback(async(projectId) =>{
       try {
@@ -81,6 +82,21 @@ export const ProjectProvider = ({children}) => {
     
   },[])
 
+
+  const fetchFlatInstances = useCallback (async(projectId)=> {
+    try {
+      const res= await axios.get(`${import.meta.env.VITE_APP_SERVER_URL}/instancia/project/${projectId}/tabledata`,
+          {withCredentials: true}
+        )
+        setFlatInstances(res.data)
+    } catch (error) {
+      setBaseform({msg:'Ha ocurrido un error inesperado, intenta nuevamente'})
+      console.log(error)
+    }
+    
+  },[])
+   
+
     const fetchAssignments = useCallback (async (projectId) =>{
       try {
         const res = await axios.get(`${import.meta.env.VITE_APP_SERVER_URL}/asignacion/project/${projectId}/assignment/all`,
@@ -111,6 +127,7 @@ export const ProjectProvider = ({children}) => {
       fetchProject,
       fetchBaseform,
       fetchInstances,
+      fetchFlatInstances,
       fetchAssignments,
       postBaseForm,
       setProject,
@@ -118,6 +135,7 @@ export const ProjectProvider = ({children}) => {
       articles,
       baseform,
       instances,
+      flatInstances,
       assignments,
       role
     }

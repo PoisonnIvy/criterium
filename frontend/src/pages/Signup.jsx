@@ -12,6 +12,7 @@ import VerifyCodeModal from '../components/validationModal.jsx'
 import IconButton from '@mui/joy/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import validator from 'validator';
 
 const Signup = () => {
   const {fetchUser} =useAuth()
@@ -120,26 +121,37 @@ const Signup = () => {
       <h2>Registrate</h2>
       <form onSubmit={handleSubmit}>
         <div className="inputText">
+          <FormControl>
           <FormLabel sx={{ fontFamily: "'Josefin Sans', sans-serif" }}>Correo electrónico</FormLabel>
           <Input
             sx={{ fontFamily: "'Josefin Sans', sans-serif" }}
             type="email"
             name="email"
             value={email}
+            error={email.length > 0 && !validator.isEmail(email, {allow_underscores: true })}
             placeholder="Ingresa tu correo electrónico"
             onChange={handleOnChange}
           />
+          {email.length > 0 && !validator.isEmail(email, {allow_underscores: true }) && <FormHelperText
+            sx={{ fontFamily: "'Josefin Sans', sans-serif" }}>Ingresa un correo electrónico válido.</FormHelperText>}
+          </FormControl>
         </div>
         <div className="inputText">
+          <FormControl>
           <FormLabel sx={{ fontFamily: "'Josefin Sans', sans-serif" }}>Nombre</FormLabel>
           <Input
             sx={{ fontFamily: "'Josefin Sans', sans-serif" }}
             type="text"
             name="name"
             value={name}
+            minLength={5}
+            error={name.length > 0 && name.length < 5}
             placeholder="Ingresa tu nombre"
             onChange={handleOnChange}
           />
+          {name.length > 0 && name.length < 5 && <FormHelperText
+            sx={{ fontFamily: "'Josefin Sans', sans-serif" }}>El nombre debe tener al menos 5 caracteres.</FormHelperText>}
+          </FormControl>
         </div>
         <div className="inputText">
           <FormControl >
@@ -149,6 +161,8 @@ const Signup = () => {
             type={showPassword ? "text" : "password"}
             name="password"
             value={password}
+            minLength={8}
+            error={password.length > 0 && !validator.isStrongPassword(password, [ { minLength: 8, minUppercase: 1, minNumbers: 1, minSymbols: 1 }])}
             placeholder="Ingresa tu contraseña"
             onChange={handleOnChange}
             endDecorator={
@@ -161,8 +175,8 @@ const Signup = () => {
               </IconButton>
             }
             />
-          <FormHelperText 
-          sx={{ fontFamily: "'Josefin Sans', sans-serif" }}>La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.</FormHelperText>
+          {password.length > 0 && !validator.isStrongPassword(password, [ { minLength: 8, minUppercase: 1, minNumbers: 1, minSymbols: 1 }]) && <FormHelperText 
+          sx={{ fontFamily: "'Josefin Sans', sans-serif" }}>La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial.</FormHelperText>}
           </FormControl>
         </div>
         <Button sx={{ fontFamily: "'Josefin Sans', sans-serif", 

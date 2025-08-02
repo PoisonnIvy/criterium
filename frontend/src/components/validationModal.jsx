@@ -32,8 +32,8 @@ export default function VerifyCodeModal({ open, onClose, onVerify, loading }) {
           maxLength={6}
         />
         <Stack direction="row" spacing={2} mt={2}>
-          <Button variant="soft" onClick={onClose}>Cancelar</Button>
-          <Button onClick={handleVerify} disabled={code.length !== 6 || loading}>
+          <Button  onClick={onClose} color="danger">Cancelar</Button>
+          <Button onClick={handleVerify} disabled={code.length !== 6 || loading} color="success">
             Verificar
           </Button>
         </Stack>

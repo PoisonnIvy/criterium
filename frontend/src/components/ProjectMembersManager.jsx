@@ -10,6 +10,8 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Typography from '@mui/joy/Typography';
 import validator from 'validator'
 import axios from 'axios';
+import CircularProgress from '@mui/joy/CircularProgress';
+import InfoToast from './InfoToast';
 import { useAuth } from '../hooks/useAuth';
 
 const ProjectMembersManager = ({
@@ -26,8 +28,13 @@ const ProjectMembersManager = ({
   const [newRole, setNewRole] = useState('');
   const [removeStatus, setRemoveStatus] = useState(null);
   const [removeMessage, setRemoveMessage] = useState('');
+  const [removingLoading, setRemovingLoading] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
+  const [showConfirmRemove, setShowConfirmRemove] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState(null);
 
   const handleAdd = async () => {
+    setAddLoading(true);
     setAddStatus(null);
     setAddMessage('');
     if (!validator.isEmail(newMemberEmail)) {
@@ -51,17 +58,25 @@ const ProjectMembersManager = ({
       );
       setAddStatus('success');
       setAddMessage('Invitación enviada correctamente.');
-      setNewMemberEmail('');
       if (refreshMembers) refreshMembers();
     } catch (error) {
+      console.log(error)
       setAddStatus('error');
       setAddMessage(
         error?.response?.data?.message || 'Error al enviar la invitación.'
       );
+    } finally{
+      setTimeout(() => {
+        setAddLoading(false);
+        setNewMemberEmail('');
+        setAddStatus(null);
+        setAddMessage('');
+      }, 2500);
     }
   };
 
   const handleRemove = async (member) => {
+    setRemovingLoading(true);
     setRemoveStatus(null);
     setRemoveMessage('');
     if (member.role === 'investigador principal') {
@@ -77,12 +92,19 @@ const ProjectMembersManager = ({
       );
       setRemoveStatus('success');
       setRemoveMessage('Miembro eliminado correctamente.');
+      
       if (refreshMembers) refreshMembers();
     } catch (error) {
       setRemoveStatus('error');
       setRemoveMessage(
         error?.response?.data?.message || 'Error al eliminar el miembro.'
       );
+    } finally{
+      setTimeout(() => {
+        setRemovingLoading(false);
+        setRemoveStatus(null);
+        setRemoveMessage('');
+      }, 2500);
     }
   };
 
@@ -114,6 +136,7 @@ const ProjectMembersManager = ({
           onKeyDown={e => {
                 if (e.key === 'Enter') handleAdd();
             }}
+          disabled={addLoading}
           onChange={e => {
             setNewMemberEmail(e.target.value);
             setAddStatus(null);
@@ -122,8 +145,12 @@ const ProjectMembersManager = ({
           size="sm"
           sx={{ flex: 1 }}
         />
-        <IconButton color="primary" onClick={handleAdd} disabled={!newMemberEmail}>
-          <PersonAddIcon />
+        <IconButton color="primary" onClick={handleAdd} disabled={addLoading}>
+          {addLoading ? (
+            <CircularProgress />
+          ) : (
+            <PersonAddIcon />
+          )}
         </IconButton>
       </Stack>
       {addStatus && (
@@ -145,11 +172,18 @@ const ProjectMembersManager = ({
             {(['investigador principal', 'editor'].includes(role)) && (
               <IconButton
                 color="danger"
-                onClick={() => handleRemove(member)}
+                onClick={() => {
+                  setMemberToRemove(member);
+                  setShowConfirmRemove(true);
+                }}
                 disabled={member.role === 'investigador principal' || member.userId._id === user.userId}
                 title={member.role === 'investigador principal' ? 'No puedes eliminar al investigador principal' : 'Eliminar miembro'}
               >
-                Eliminar miembro<DeleteIcon />
+                {removingLoading ? (
+                  <CircularProgress />
+                ) : (
+                  <>Eliminar miembro<DeleteIcon /></>
+                )}
               </IconButton>
             )}
             {role === 'investigador principal' && (
@@ -179,6 +213,26 @@ const ProjectMembersManager = ({
           {removeMessage}
         </Typography>
       )}
+      <InfoToast
+        open={showConfirmRemove}
+        message={`¿Estás seguro que deseas eliminar a ${memberToRemove?.userId?.name || ''}?`}
+        type="warning"
+        showConfirm
+        showCancel
+        onConfirm={async () => {
+          setShowConfirmRemove(false);
+          if (memberToRemove) await handleRemove(memberToRemove);
+          setMemberToRemove(null);
+        }}
+        onCancel={() => {
+          setShowConfirmRemove(false);
+          setMemberToRemove(null);
+        }}
+        onClose={() => {
+          setShowConfirmRemove(false);
+          setMemberToRemove(null);
+        }}
+      />
     </Box>
   );
 };

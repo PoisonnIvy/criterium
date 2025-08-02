@@ -7,7 +7,7 @@ import { sendVerificationCodeMail } from "../services/mailSender.js";
 
 export const Signup = async(req,res) =>{
   const {email, name, password} = req.body;
-  const norm_email= validator.normalizeEmail(email);
+  const norm_email= validator.normalizeEmail(email,{gmail_remove_dots:false});
 
   try {
     
@@ -19,7 +19,7 @@ export const Signup = async(req,res) =>{
       return res.json({success: false, message: "Este correo ya está registrado" });
     }
     if (!name || !email || !password) {
-      return res.json({ success: false,message: "Se necesitan todos los campos" });
+      return res.json({ success: false,message: "Todos los campos son obligatorios!" });
     }
     if (!validator.isEmail(norm_email)) {
       return res.json({success: false, message: "Correo inválido" });
@@ -41,7 +41,7 @@ export const Signup = async(req,res) =>{
 
 export const Validate = async (req, res) => {
   const { name, email, password, code} = req.body;
-  const norm_email= validator.normalizeEmail(email);
+  const norm_email= validator.normalizeEmail(email,{gmail_remove_dots:false});
   
   const cachedCode = validationTokenCache.get(norm_email);
   if (!cachedCode) return res.status(400).json({ message: "El código expiró o es inválido" });
@@ -71,7 +71,7 @@ export const Validate = async (req, res) => {
 export const Login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const norm_email= validator.normalizeEmail(email);
+    const norm_email= validator.normalizeEmail(email,{gmail_remove_dots:false});
     if (!email || !password) {
       return res.json({ message: 'Se necesitan todos los campos' });
     }
@@ -124,7 +124,8 @@ export const checkAuth = (req, res) => {
       user: {name:req.session.username,
       userId:req.session.userId,
       lastLogin:req.session.lastLogin,
-      createdAt: req.session.createdAt}
+      createdAt: req.session.createdAt,
+      email: req.session.email}
     });
   } else {
     return res.status(401).json({ status: false});
@@ -136,7 +137,7 @@ export const checkAuth = (req, res) => {
 
 export const checkEmail = async (req, res) => {
   const {email} = req.params
-  const norm_email= validator.normalizeEmail(email);
+  const norm_email= validator.normalizeEmail(email,{gmail_remove_dots:false});
   try {
     const user = await User.findOne({ email:norm_email });
     if (user) {

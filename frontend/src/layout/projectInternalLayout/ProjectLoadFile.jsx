@@ -17,6 +17,7 @@ import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import InfoToast from '../../components/InfoToast';
 import CircularProgress from '@mui/material/CircularProgress';
+import { sanitizeString } from '../../utils/stringFormater';
 
 const MAX_META_FILES = 10;
 const MAX_ARTICLE_FILES = 10;
@@ -99,31 +100,52 @@ const ProjectLoadFile = () => {
   }
   const handleMetaDragLeave = () => setDragOverMeta(false)
 
-  const normalizeArticle = (article) => ({
-    title: article.title || '',
-    tags: article.tags || [],
-    abstract: article.abstract || '',
-    source: article.source || article.journal || article.publisher || '',
-    pdfPath: article.pdfPath || '',
-    is_oa: article.is_oa || false,
-    openAccessURL: article.openAccessURL || '',
-    other_url: article.other_url || [],
-    doi: article.doi || '',
-    doiUrl: article.doiUrl || '',
-    otherIdentifiers: article.otherIdentifiers || {},
-    publicationType: article.publicationType || 'journal-article',
-    year: article.year || '',
-    volume: article.volume || '',
-    issue: article.issue || '',
-    pages: article.pages || '',
-    keywords: article.keywords || [],
-    authors: Array.isArray(article.authors) ? article.authors.filter(a => a && a.name) : [],
-    journal: article.journal || '',
-    publisher: article.publisher || '',
-    referenceCount: article.referenceCount || 0,
-    citationCount: article.citationCount || 0,
-    language: article.language || 'No definido'
-  });
+
+
+const normalizeArticle = (article) => ({
+  title: sanitizeString(article.title || '').slice(0, 255),
+  tags: Array.isArray(article.tags) ? article.tags.map(sanitizeString) : [],
+  abstract: sanitizeString(article.abstract || '').slice(0, 2000),
+  source: sanitizeString(article.source || 'Desconocida').slice(0, 200),
+  pdfPath: sanitizeString(article.pdfPath || ''),
+  is_oa: !!article.is_oa,
+  openAccessURL: sanitizeString(article.openAccessURL || ''),
+  other_url: Array.isArray(article.other_url)
+    ? article.other_url.map(url => ({
+        link: sanitizeString(url.link || ''),
+        pdfLink: sanitizeString(url.pdfLink || ''),
+        version: sanitizeString(url.version || ''),
+      }))
+    : [],
+  doi: sanitizeString(article.doi || '').slice(0, 255),
+  doiUrl: sanitizeString(article.doiUrl || ''),
+  otherIdentifiers: {
+    pmid: sanitizeString(article.otherIdentifiers?.pmid || ''),
+    arxivId: sanitizeString(article.otherIdentifiers?.arxivId || ''),
+    isbn: sanitizeString(article.otherIdentifiers?.isbn || ''),
+    handle: sanitizeString(article.otherIdentifiers?.handle || ''),
+    customId: sanitizeString(article.otherIdentifiers?.customId || ''),
+    otherId: sanitizeString(article.otherIdentifiers?.otherId || ''),
+  },
+  publicationType: sanitizeString(article.publicationType || 'journal-article'),
+  year: Number(article.year) || '',
+  volume: sanitizeString(article.volume || ''),
+  issue: sanitizeString(article.issue || ''),
+  pages: sanitizeString(article.pages || ''),
+  keywords: Array.isArray(article.keywords) ? article.keywords.map(sanitizeString) : [],
+  authors: Array.isArray(article.authors)
+    ? article.authors.filter(a => a && a.name).map(a => ({
+        name: sanitizeString(a.name),
+        affiliation: sanitizeString(a.affiliation || ''),
+        orcid: sanitizeString(a.orcid || ''),
+      }))
+    : [],
+  journal: sanitizeString(article.journal || ''),
+  publisher: sanitizeString(article.publisher || ''),
+  referenceCount: Number(article.referenceCount) || 0,
+  citationCount: Number(article.citationCount) || 0,
+  language: Array.isArray(article.language) ? article.language.map(sanitizeString) : ['No definido'],
+});
 
   const handleMetadataUpload = async ()=> {
     for (const file of parsedMetadata) {
@@ -265,12 +287,7 @@ const ProjectLoadFile = () => {
       <h2 sx={{ mb: 1, color: 'var(--color-terracotta)', fontWeight: 700 }}>
         Documentos locales
       </h2>
-      <p>
-        En esta sección puedes subir metadatos en formato .RIS, así como también puedes cargar artículos en formato .PDF.
-      </p>
-      <p>
-        Selecciona el tipo de archivo que quieras subir:
-      </p>
+
     <Divider />
 
       <Stack
@@ -299,11 +316,12 @@ const ProjectLoadFile = () => {
             alignItems: 'center'
           }}
         >
+          <span>Aqui puedes subir los metadatos de artículos en formato .RIS. Pueden ser varios articlos en un solo archivo o un archivo por cada artículo</span>
           <Box
             sx={{
               minWidth: 250,
               minHeight: 150,
-              border: dragOverMeta ? '2px solid var(--color-terracotta)' : '2px dashed #bdbdbd',
+              border: dragOverMeta ? '2px solid var(--color-aceptar)' : '2px dashed #bdbdbd',
               borderRadius: 8,
               textAlign: 'center',
               display: 'flex',
@@ -311,7 +329,7 @@ const ProjectLoadFile = () => {
               alignItems: 'center',
               justifyContent: 'center',
               cursor: isBlocked? null:'pointer',
-              bgcolor: dragOverMeta ? '#ffe6e0' : '#fafafa',
+              bgcolor: dragOverMeta ? '#d4edda' : '#fafafa',
               transition: 'border 0.2s, background 0.2s',
               mb: 2
               
@@ -382,11 +400,12 @@ const ProjectLoadFile = () => {
             alignItems: 'center'
           }}
         >
+          <span>Aqui puedes subir los PDF de artículos que ya esten en la biblioteca pero que aun no tengan un archivo asociado para visualizar</span>
           <Box
             sx={{
               minWidth: 250,
               minHeight: 150,
-              border: dragOverArticle ? '2px solid var(--color-terracotta)' : '2px dashed #bdbdbd',
+              border: dragOverArticle ? '2px solid var(--color-aceptar)' : '2px dashed #bdbdbd',
               borderRadius: 8,
               textAlign: 'center',
               display: 'flex',
@@ -394,7 +413,7 @@ const ProjectLoadFile = () => {
               alignItems: 'center',
               justifyContent: 'center',
               cursor: isBlocked? null : 'pointer',
-              bgcolor: dragOverArticle ? '#ffe6e0' : '#fafafa',
+              bgcolor: dragOverArticle ? '#d4edda' : '#fafafa',
               transition: 'border 0.2s, background 0.2s',
               mb: 2
             }}
@@ -430,11 +449,11 @@ const ProjectLoadFile = () => {
           </Box>
           <Button
             size='md'
-            color="primary"
-            variant="solid"
+            color="success"
             onClick={handleOpenPdfModal}
             disabled={isBlocked || articleFiles.length === 0}
             sx={{ width: '100%' }}
+            
           >
             Subir artículos
           </Button>
@@ -442,7 +461,6 @@ const ProjectLoadFile = () => {
             <Button
               size='md'
               color='danger'
-              variant="soft"
               onClick={() => setArticleFiles([])}
               sx={{ width: '100%' }}
             >
@@ -496,8 +514,9 @@ const ProjectLoadFile = () => {
                 pdfAssignments.length === 0
               }
               onClick={handleUploadAllPdfs}
+              startDecorator={<FileUploadTwoToneIcon />}
             >
-              Subir todos
+              Subir
             </Button>)}
           </Stack>
           {pdfAssignments.length === 0 && (

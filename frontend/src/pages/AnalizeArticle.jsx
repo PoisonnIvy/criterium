@@ -15,7 +15,6 @@ import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 
 
   function getSources(article) {
-      // Devuelve un array de opciones para el select: PDF o abstract+links
       const sources = [];
       if (article.pdfPath) {
         sources.push({
@@ -26,7 +25,7 @@ import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
           links: []
         });
       }
-      // Links para el abstract
+
       const links = [];
       if (article.openAccessURL!== 'No hay openAccess para este artículo') {
         links.push({ label: 'Open Access', url: article.openAccessURL });

@@ -2,7 +2,7 @@ import axios from 'axios';
 import NodeCache from 'node-cache';
 
 const unpaywall_url = 'https://api.unpaywall.org/v2';
-const mail = process.env.MAILTO;
+const mail = process.env.GMAIL;
 export const unpaywallCache = new NodeCache({ stdTTL: 3 * 24 * 60 * 60, checkperiod: 24*60*60 });
 
 export async function checkOpenAccessService(dois) {

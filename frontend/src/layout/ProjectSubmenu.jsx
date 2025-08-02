@@ -48,7 +48,7 @@ function ProjectSubMenu() {
               key={index}
               component={Link}
               to={tab.path}
-              sx={{maxWidth:'170px'}}
+              sx={{maxWidth:'170px', fontFamily:'Josefin Sans'}}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 {tab.icon}

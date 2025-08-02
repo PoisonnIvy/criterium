@@ -51,7 +51,8 @@ const Profile = () => {
         boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
         p: { xs: 2, md: 4 },
         mt: 2,
-        minHeight: '60vh',
+        height:'auto',
+        flexGrow: 1,
         display: 'flex',
         flexDirection: 'column',
         gap: 4,
@@ -85,16 +86,16 @@ const Profile = () => {
           {user?.name?.[0]?.toUpperCase() || '?'}
         </Avatar>
         <Box sx={{ flex: 1 }}>
-          <Typography level="h3" sx={{ mb: 1, color: 'var(--color-terracotta)' }}>
+          <h2 sx={{ mb: 1, color: 'var(--color-terracotta)' }}>
             {user?.name}
-          </Typography>
-          <Typography level="body-md" color="neutral" sx={{ mb: 1 }}>
+          </h2>
+          <h4 sx={{ mb: 1 }}>
             {user?.email}
-          </Typography>
+          </h4>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 1 }}>
-            <Typography level="body-md">
+            <span>
               <b>Miembro desde:</b> {formatDate(user?.createdAt)}
-            </Typography>
+            </span>
           </Stack>
         </Box>
       </Box>
@@ -108,22 +109,21 @@ const Profile = () => {
           borderRadius: 3,
           p: 3,
           boxShadow: 'sm',
-          minWidth: 0,
         }}
       >
         <Typography level="h4" sx={{ color: 'var(--color-terracotta)', mb: 2 }}>
           Proyectos en los que colaboras
         </Typography>
-        <Typography level="body-md" sx={{ mb: 2 }}>
+        <Chip variant='outlined' color='primary' sx={{ mb: 2 }}>
           <b>Total:</b> {loading ? 'Cargando...' : projects.length}
-        </Typography>
+        </Chip>
         <Divider sx={{ mb: 2 }} />
         {projects.length === 0 && !loading && (
           <Typography color="neutral">No participas en ningún proyecto aún.</Typography>
         )}
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{ mx: 'auto', alignItems:'center' }} >
           {projects.map((p) => (
-            <Grid xs={12} sm={6} md={4} key={p._id}>
+            <Grid xs={12} sm={6} md={4} key={p._id} >
               <Card
                 variant="outlined"
                 sx={{
@@ -132,23 +132,27 @@ const Profile = () => {
                   borderRadius: 2,
                   p: 2,
                   boxShadow: 'xs',
+                  minWidth: '200px',
+                  maxWidth: '300px',
                   height: '100%',
+                  width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'space-between'
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}
               >
-                <Stack direction="row" alignItems="center" spacing={2}>
+                  <h4>
+                    {p.name.length > 30 ? `${p.name.slice(0, 40)}...` : p.name}
+                  </h4>
+                <Stack direction="column" spacing={1} sx={{ mt: 2, justifyContent: 'center' }}>
                   <Chip color="primary" variant="soft" size="sm">
                     {getRole(p) || 'Miembro'}
                   </Chip>
-                  <Typography level="title-md" sx={{ flex: 1 }}>
-                    {p.name}
-                  </Typography>
-                </Stack>
                 <Typography level="body-xs" color="neutral" sx={{ mt: 1 }}>
                   <b>Desde:</b> {getJoinedAt(p)}
                 </Typography>
+                </Stack>
               </Card>
             </Grid>
           ))}

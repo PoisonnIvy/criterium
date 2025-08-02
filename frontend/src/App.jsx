@@ -1,5 +1,6 @@
 import { Route, Routes, useLocation } from "react-router-dom";
-import { Login, Signup, Project,  Profile, Analize } from "./pages";
+import { Login, Signup, Project,  Profile, Analize,
+        Invitation} from "./pages";
 import './css/App.css'
 import DrawerNav from "./layout/Drawer";
 import Navbar from "./layout/Navbar";
@@ -7,8 +8,8 @@ import {AppProviders} from './providers/AppProviders.jsx'
 import ProtectedRoute from "./context/ProtectedRoutes.jsx";
 import { useEffect, useState } from "react";
 import ProjectLayout from "./layout/ProjectLayout.jsx";
-import {BaseForm, SearchArticles, Instances, Details, LoadFile, Library, Generator, Manage, Screening} from './layout/projectInternalLayout'
-import Invitation from "./pages/Invitation.jsx";
+import {BaseForm, SearchArticles, Instances, Details, 
+        LoadFile, Library, Generator, Manage, Screening} from './layout/projectInternalLayout'
 
 function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -31,6 +32,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/invitacion/:token" element={<Invitation/>}/>
+          
 
           <Route path="/perfil" element={
               <ProtectedRoute>

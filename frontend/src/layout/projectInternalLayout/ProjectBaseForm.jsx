@@ -220,7 +220,7 @@ const renderField = (field, index) => {
 
         <Box sx={{ flex: 2, minWidth: 0 }}>
           {['investigador principal', 'editor'].includes(role) && !baseform.msg && (
-            <Button disabled={isBlocked} onClick={handleEditForm} sx={{ mb: 2, bgcolor:'#4f2621' }}>
+            <Button disabled={isBlocked} onClick={handleEditForm} sx={{ mb: 2, bgcolor:'#4f2621' , color:'white'}}>
               Editar formulario
             </Button>
           )}
@@ -268,8 +268,10 @@ const renderField = (field, index) => {
                 ))}
             </Stack>
           </Box>
-          {['colaborador'].includes(role) && (
+          {baseform.msg && <p  sx={{ mb: 1 }}>{baseform.msg}</p>}
+          {['colaborador'].includes(role) && !baseform.msg && (
             <Box sx={{ mt: 2 }}>
+              
               <Textarea
               disabled={baseform.status==='editing' && baseform.isActive === false}
                 placeholder="Añade un comentario..."

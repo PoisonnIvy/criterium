@@ -85,6 +85,7 @@ const ScreeningSubmenu = () => {
       setToast({ open: true, message: 'Error al rechazar el artículo.', type: 'error' }); 
       
     }
+    setLoading(false);
     setToast({ open: true, message: 'Artículo rechazado.', type: 'warning' });
   };
 
@@ -103,44 +104,63 @@ const ScreeningSubmenu = () => {
             <Typography>Cargando artículos...</Typography>
           ) : (
             <Stack spacing={2}>
-            {articles.filter(article => article.status === 'pendiente').length === 0 && 
+              {Array.isArray(articles) ? (
+                articles.filter(article => article.status === 'pendiente').length === 0 ? (
                   <Typography color="neutral" sx={{ mt: 2 }}>
                     No hay artículos pendientes para mostrar.
-                  </Typography>}
-              {articles.filter(article => article.status === 'pendiente').map((article, idx) => (
-                <Card key={idx} variant="outlined">
-                  <CardContent>
-                    <Typography level="title-md">{article.title}</Typography>
-                    <Typography level="body-sm" sx={{ mb: 1 }}>{cleanAbstract(article.abstract)?.substring(0, 200) || 'Sin resumen'}...</Typography>
-                    <Typography level="body-xs" sx={{ mb: 1 }}>
-                      Autor: {article.authors?.map(a => a.name).join(', ')}
-                    </Typography>
-                    <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                      {article.year && <Typography level="body-xs">Año: {article.year}</Typography>}
-                      {article.publicationType && <Typography level="body-xs">Tipo: {article.publicationType}</Typography>}
-                      {article.publisher && <Typography level="body-xs">Publisher: {article.publisher}</Typography>}
-                    </Stack>
-                    <Stack direction="row" spacing={1} sx={{ mt: 1 , display: 'flex', justifyContent: 'space-between'}}>
-                     <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}> <Button size="sm" color="success" onClick={() => handleAcceptArticle(article._id)}>
-                                                Aceptar</Button>
-                      <Button size="sm" color="danger" onClick={() => handleRejectArticle(article._id)}>
-                                                Rechazar</Button>
-                      </Stack>
-                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                      <Button size="sm" color="secondary" onClick={() => handleOpenArticle(article)} startDecorator={<Visibility />}>Ver detalles</Button>
-                      <Input  placeholder="Añadir comentario"
-                              value={comments[article._id] || ""}
-                              onChange={e =>
-                                setComments(prev => ({
-                                  ...prev,
-                                  [article._id]: e.target.value
-                                }))
-                              } />
-                              </Stack>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              ))}
+                  </Typography>
+                ) : (
+                  articles
+                    .filter(article => article.status === 'pendiente')
+                    .map((article, idx) => (
+                      <Card key={idx} variant="outlined">
+                        <CardContent>
+                          <Typography level="title-md">{article.title}</Typography>
+                          <Typography level="body-sm" sx={{ mb: 1 }}>
+                            {cleanAbstract(article.abstract)?.substring(0, 200) || 'Sin resumen'}...
+                          </Typography>
+                          <Typography level="body-xs" sx={{ mb: 1 }}>
+                            Autor: {article.authors?.map(a => a.name).join(', ')}
+                          </Typography>
+                          <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                            {article.year && <Typography level="body-xs">Año: {article.year}</Typography>}
+                            {article.publicationType && <Typography level="body-xs">Tipo: {article.publicationType}</Typography>}
+                            {article.publisher && <Typography level="body-xs">Publisher: {article.publisher}</Typography>}
+                          </Stack>
+                          <Stack direction="row" spacing={1} sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
+                            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                              <Button size="sm" color="success" onClick={() => handleAcceptArticle(article._id)}>
+                                Aceptar
+                              </Button>
+                              <Button size="sm" color="danger" onClick={() => handleRejectArticle(article._id)}>
+                                Rechazar
+                              </Button>
+                            </Stack>
+                            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                              <Button size="sm"  onClick={() => handleOpenArticle(article)} startDecorator={<Visibility />}>
+                                Ver detalles
+                              </Button>
+                              <Input
+                                placeholder="Añadir comentario"
+                                value={comments[article._id] || ""}
+                                onChange={e =>
+                                  setComments(prev => ({
+                                    ...prev,
+                                    [article._id]: e.target.value
+                                  }))
+                                }
+                              />
+                            </Stack>
+                          </Stack>
+                        </CardContent>
+                      </Card>
+                    ))
+                )
+              ) : (
+                <Typography color="neutral" sx={{ mt: 2 }}>
+                  {articles.msg || "No hay artículos para mostrar."}
+                </Typography>
+              )}
             </Stack>
           )}
         </Box>

@@ -5,8 +5,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: black;
+  color-scheme: normal;
+  color: rgb(0, 0, 0);
   background-color: var(--color-sage);
 
   font-synthesis: none;
@@ -61,8 +61,12 @@ a {
 a:hover {
   color: var(--color-brown);
 }
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Josefin Sans', sans-serif;
+  margin: 0;
+}
 
-h1 {
+h1{
   font-size: 3.2em;
   line-height: 1.1;
   color:var(--color-uno)
@@ -70,7 +74,6 @@ h1 {
 h2{
   color:var(--color-uno)
 }
-
 .buttonGroup{
   justify-content:center;
   display: flex;

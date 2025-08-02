@@ -1,0 +1,26 @@
+TY  - JOUR
+TI  - Ejemplo de artículo RIS
+AU  - Pérez, Juan
+AU  - González, María
+PY  - 2022
+JO  - Revista de Ejemplo
+VL  - 10
+IS  - 2
+SP  - 123
+EP  - 130
+AB  - Este es un ejemplo de entrada RIS para cargar metadatos de artículos.
+DO  - 10.1234/ejemplo.2022.001
+ER  -
+
+TY  - JOUR
+TI  - Segundo artículo de ejemplo
+AU  - López, Ana
+PY  - 2021
+JO  - Otra Revista
+VL  - 5
+IS  - 1
+SP  - 45
+EP  - 50
+AB  - Segundo ejemplo de artículo en formato RIS.
+DO  - 10.5678/ejemplo.2021.002
+ER  -

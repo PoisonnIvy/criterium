@@ -17,7 +17,7 @@ import axios from 'axios'
 import BasicFormModal from '../../components/FormModal';
 import { transformArticlePayload } from '../../utils/articleTransform';
 import InfoToast from '../../components/InfoToast';
-
+import {toCapitalize} from '../../utils/stringFormater';
 
 const ProjectInstances = () => {
   const {projectId} = useParams();
@@ -77,6 +77,7 @@ const editFields = [
 };
 
   const handleRemove = async (assignmentId) => {
+    
     try {
       if(['investigador principal','editor'].includes(role)){
       await axios.patch(`${import.meta.env.VITE_APP_SERVER_URL}/asignacion/project/${projectId}/assignment/${assignmentId}/revoke`,
@@ -93,6 +94,7 @@ const editFields = [
           message: 'Asignación eliminada correctamente.', 
           type: 'success' 
         });
+        console.log(toast)
     } catch (error) {
       console.log(error)
       setToast({ open: true, message: 'Error al eliminar la asignación.', type: 'error' });
@@ -116,7 +118,7 @@ const editFields = [
         volume: article.volume || '',
         issue: article.issue || '',
         pages: article.pages || '',
-        language: Array.isArray(article.language) ? article.language.join(', ') : (article.language || ''),
+        language: article.language || '',
         keywords: Array.isArray(article.keywords) ? article.keywords.join(', ') : (article.keywords || ''),
         authors: Array.isArray(article.authors) ? article.authors.map(a => a.name || a).join(', ') : (article.authors || ''),
         referenceCount: article.referenceCount || '',
@@ -170,7 +172,7 @@ return (
     <Stack direction='row' spacing={10}>
     <h2>Asignaciones</h2>
     <Dropdown>
-      <MenuButton startDecorator={<ArrowDropDown/>} color='white' sx={{background: '#4f2621'}}>Prioridad</MenuButton>
+      <MenuButton startDecorator={<ArrowDropDown/>} sx={{background: '#4f2621', color: 'white', '&:hover': { background: '#3e1f1c' }}}>{toCapitalize(priorityFilter) || 'Prioridad'}</MenuButton>
       <Menu>
         <MenuItem onClick={() => setPriorityFilter('alta')}>Alta</MenuItem>
         <MenuItem onClick={() => setPriorityFilter('media')}>Media</MenuItem>
@@ -180,7 +182,7 @@ return (
     </Dropdown>
     {['investigador principal','editor'].includes(role) && 
     <Dropdown>
-      <MenuButton startDecorator={<ArrowDropDown/>} color='white' sx={{background: '#4f2621'}}>Filtrar por</MenuButton>
+      <MenuButton startDecorator={<ArrowDropDown/>} sx={{background: '#4f2621', color: 'white', '&:hover': { background: '#3e1f1c' }}}>{userFilter!==null? 'Mis asignaciones': 'Filtrar por'}</MenuButton>
       <Menu>
         <MenuItem onClick={() => setUserFilter(user.userId)}>Mis asignaciones</MenuItem>
         <MenuItem onClick={() => setUserFilter(null)}>Todas las asignaciones del projecto</MenuItem>
@@ -213,7 +215,7 @@ return (
                   gap: 1,
                 }}
               >
-                <strong>Artículo:</strong> {a.articleId?.title || 'Sin título'}
+                <strong>Artículo:</strong> <p style={{fontSize:'1.5rem'}}>{a.articleId?.title || 'Sin título'}</p>
                 <span>
                   <strong>Estado:</strong> {a.status}
                 </span>
@@ -231,15 +233,15 @@ return (
                       </Stack>
                   )}
                 <Stack direction='row' gap='10px'>
-                   { a.reviewerId===user.userId  &&
+                   { a.reviewerId?._id===user.userId  &&
                    <Button disabled={isBlocked} color='danger' size='md' sx={{ maxWidth: 200, height: 50 }} onClick={() => handleRemove(a._id)}>Eliminar asignación</Button> }
                   {a.reviewerId?._id === user.userId && (
-                      <Button disabled={isBlocked} color='secondary' size='md' sx={{ maxWidth: 200, height: 50 }} onClick={() => navigate(`/analize/${a._id}/${projectId}/${a.articleId._id}`)}>
+                      <Button disabled={isBlocked}   size='md' sx={{ maxWidth: 200, height: 50 }} onClick={() => navigate(`/analize/${a._id}/${projectId}/${a.articleId._id}`)}>
                         Analizar artículo
                       </Button> 
                   )}
                  
-                  <Button disabled={isBlocked} size='md' color='secondary' sx={{maxWidth:200, height:50}} onClick={()=>handleEditMetadata(a.articleId._id)}>Editar metadatos</Button>
+                  <Button disabled={isBlocked} color='secondary' size='md' sx={{maxWidth:200, height:50, color:'white'}} onClick={()=>handleEditMetadata(a.articleId._id)}>Editar metadatos</Button>
                   <Box sx={{ mb: 2, display:'flex', flexDirection:'column'}}>
                           <label htmlFor="priority-select" style={{ marginRight: 8 }}>Cambiar prioridad</label>
                           <Select

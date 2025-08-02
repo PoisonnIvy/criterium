@@ -71,6 +71,9 @@ export const comments = async (req, res) => {
         if (!baseForm) {
             return res.status(404).json({ message: 'Formulario base no encontrado' });
         }
+        if(!comment || comment.trim() === '') {
+            return res.status(400).json({ message: 'Comentario no puede estar vacío' });
+        }
 
         baseForm.comments.push({
             userId,

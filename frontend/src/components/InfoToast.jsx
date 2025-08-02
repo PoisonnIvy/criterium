@@ -42,26 +42,24 @@ const InfoToast = ({
                     variant="soft"
                     sx={{ width: '100%', mb: 2 }}
                 >
-                    <Typography level="title-md" sx={{ fontWeight: 'bold' }}>
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </Typography>
-                </Alert>
-                <Typography level="body-md" sx={{ mb: 3, textAlign: 'center' }}>
+                    <Typography level="body-md" >
                     {message}
                 </Typography>
+                </Alert>
+                
                 <div style={{ display: 'flex', gap: 12 }}>
                     {showCancel && (
                         <Button variant="outlined" color="neutral" onClick={onCancel}>
-                            Cancel
+                            Cancelar
                         </Button>
                     )}
                     {showConfirm && (
                         <Button
                             variant="solid"
-                            color={typeColor[type] || 'primary'}
+                            color={ type==='success' ? 'success' : 'danger'}
                             onClick={onConfirm}
                         >
-                            Confirm
+                            Confirmar
                         </Button>
                     )}
                     {!showConfirm && !showCancel && (
@@ -70,7 +68,7 @@ const InfoToast = ({
                             color={typeColor[type] || 'primary'}
                             onClick={onClose}
                         >
-                            Close
+                            Cerrar
                         </Button>
                     )}
                 </div>

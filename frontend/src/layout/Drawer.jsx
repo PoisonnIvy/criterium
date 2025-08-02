@@ -10,6 +10,7 @@ import DialogContent from '@mui/joy/DialogContent';
 import Button from '@mui/joy/Button';
 import PersonIcon from '@mui/icons-material/Person';
 import FolderIcon from '@mui/icons-material/Folder';
+import MenuBookIcon from '@mui/icons-material/MenuBook'
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -83,7 +84,7 @@ export default function DrawerNav({ open, onClose }) {
             Última conexión: {formatDate(user.lastLogin)}
           </Typography>
         </Box>
-        <List sx={{ gap: 1, py: 2 }}>
+        <List sx={{ gap: 3, py: 5, px: 1 }}>
           <ListItem>
             <ListItemButton
               onClick={() => { navigate('/perfil'); onClose(); }}
@@ -114,6 +115,7 @@ export default function DrawerNav({ open, onClose }) {
               Proyectos
             </ListItemButton>
           </ListItem>
+         
         </List>
         <Box
           sx={{

@@ -76,7 +76,7 @@ export const sendProjectInvitationMail = async ({ to, inviterName, projectName, 
         </p>
         <p style=\"color:#4b3132;font-size:0.95em;\">Si no reconoces esta invitación, puedes ignorar este correo.</p>
       `,
-      footer: 'Este enlace es válido por tiempo limitado.'
+      footer: 'Este enlace caduca en 7 días'
     });
     const mailOptions = {
       from: `'Criterium' <${process.env.GMAIL}>`,

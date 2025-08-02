@@ -13,7 +13,10 @@ import Option from '@mui/joy/Option'
 import Checkbox from '@mui/joy/Checkbox'
 import Textarea from '@mui/joy/Textarea'
 import Button from '@mui/joy/Button'
-
+import CircularProgress from '@mui/joy/CircularProgress'
+import Divider from '@mui/material/Divider';
+import LinearScaleIcon from '@mui/icons-material/LinearScale';
+import Chip from '@mui/material/Chip';
 
 export default function FormInstance({formInstance, projectId}) {
     const{baseform} =useProject();
@@ -153,38 +156,33 @@ export default function FormInstance({formInstance, projectId}) {
         setToast({ open: true, message: 'Error al guardar', type: 'error' });
       }
     };
-
+  if (!formInstance) {
+    return (
+      <Box component='main'>
+        <Typography>Cargando formulario...</Typography>
+      </Box>
+    );
+  }
 
 
   return (
     <Box component='main' >
       <InfoToast open={toast.open} message={toast.message} type={toast.type} onClose={() => setToast({ ...toast, open: false })} />
-      <Stack direction='row' spacing={5}>
+      <Stack direction='row' spacing={5} justifyContent='space-between'>
         <Typography level='h3' mb={2}>Formulario de extracción</Typography>
-        <Button
-          size='sm'
-          sx={{
-            mt: 2,
-            backgroundColor:'#538e56ff',
-                      color:'#fff',
-                      '&:hover':{backgroundColor:"green"}
-          }}
-          onClick={handleSaveAndComplete}
-        >
-          Guardar y marcar como completado
-        </Button>
-        <Button size='sm' sx={{ mt: 2,  backgroundColor:'#538e56ff',
-                      color:'#fff',
-                      '&:hover':{backgroundColor:"green"} }} onClick={handleSave}>Guardar cambios</Button>
-      </Stack>
+        <CircularProgress size="lg" determinate value={formInstance.completionPercentage ? formInstance.completionPercentage : 0} sx={{ mb: 1 }}>
+          <Typography>{formInstance.completionPercentage ? `${formInstance.completionPercentage}%` : '0%'}</Typography>
+        </CircularProgress>
+        </Stack>
       <Stack spacing={2}>
         {baseform.fields?.map((field) => {
           const isDisabled = field.enabled === false;
           return (
             <Box key={field._id} sx={{ mb: 2 }}>
-              <Typography level='body-md' fontWeight="bold">{field.label}</Typography>
+              
+              <Typography level='body-md' fontWeight="bold">{field.label} <Typography level="body-xs" color="neutral">( {field.helpText} )</Typography></Typography>
               {renderField(field)}
-              <Typography level="body-xs" color="neutral">{field.helpText}</Typography>
+              
               {isDisabled && (
                 <Typography level="body-xs" color="danger">
                   Este campo está deshabilitado y no puede ser editado.
@@ -195,12 +193,29 @@ export default function FormInstance({formInstance, projectId}) {
                 value={answers[field._id]?.notes || ''}
                 onChange={e => handleNotesChange(field._id, e.target.value)}
                 placeholder="Notas (opcional)..."
-                sx={{ mt: 1 }}
+                sx={{ mt: 1, mb:2 }}
                 disabled={isDisabled}
               />
+              <Divider> <LinearScaleIcon/> <LinearScaleIcon/></Divider>
             </Box>
           );
         })}
+        <Stack sx={{ mt: 2 }}direction='row' spacing={2} justifyContent='flex-end'>
+          <Button
+            size='sm'
+            sx={{
+              backgroundColor: '#538e56ff',
+              color: '#fff',
+              '&:hover': { backgroundColor: "green" }
+            }}
+            onClick={handleSaveAndComplete}
+          >
+            Guardar y marcar como completado
+          </Button>
+          <Button size='sm' sx={{ mt: 2, backgroundColor: '#538e56ff',
+            color: '#fff',
+            '&:hover': { backgroundColor: "green" } }} onClick={handleSave}>Guardar cambios</Button>
+        </Stack>
       </Stack>
     </Box>  
   )

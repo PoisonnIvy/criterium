@@ -9,7 +9,7 @@ import { requireAuth } from '../middleware/authMiddleware.js';
 const router = Router();
 router.use(requireAuth);
 
-router.get("/crossref/:projectId", isMember(), projectAccess,searchWorks)
+router.post("/crossref/:projectId", isMember(), projectAccess,searchWorks)
 router.post("/unpaywall/data/:projectId", isMember(), projectAccess, checkOpenAccess)
 
 export default router;

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import crypto from 'crypto';
 import Project from '../models/project.js';
 import { inviteCache } from '../index.js';
 import { sendProjectInvitationMail, sendGeneralMail } from "../services/mailSender.js";
@@ -212,10 +213,21 @@ export const inviteMember = async (req, res) => {
     const project = req.project;
 
     try {
-        const token = Math.random().toString(36).substring(2, 15);
-        inviteCache.set(token, { email, projectId: project._id, role: role || 'colaborador' });
+         const tokenData = JSON.stringify({
+            email,
+            projectId: project._id,
+            role: role || 'colaborador',
+            createdAt: Date.now()
+        });
+        const iv = Buffer.from(process.env.TOKEN_IV, 'hex');
+        const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(process.env.TOKEN_SECRET, 'hex'), iv);
+        let encryptedToken = cipher.update(tokenData, 'utf8', 'hex');
+        encryptedToken += cipher.final('hex');
 
-        const inviteLink = `${process.env.CLIENT_URL}/invitacion/${token}`;
+
+        inviteCache.set(encryptedToken, { email, projectId: project._id, role: role || 'colaborador' });
+
+        const inviteLink = `${process.env.CLIENT_URL}/invitacion/${encryptedToken}`;
         await sendProjectInvitationMail({
             to: email,
             inviterName: username,
@@ -233,11 +245,18 @@ export const inviteMember = async (req, res) => {
 export const acceptInvite = async (req, res) => {
     const { token } = req.params;
     const userId = req.session.userId; // El usuario debe estar logueado
+    const userEmail = req.session.email;
 
     try {
-        const invite = inviteCache.get(token);
-        if (!invite) {
-            return res.status(400).json({ message: 'Invitación inválida o expirada' });
+        
+        const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(process.env.TOKEN_SECRET, 'hex'), Buffer.from(process.env.TOKEN_IV, 'hex'));
+        let decryptedToken = decipher.update(token, 'hex', 'utf8');
+        decryptedToken += decipher.final('utf8');
+
+        const invite = JSON.parse(decryptedToken);
+
+        if (!invite || invite.email !== userEmail) {
+            return res.status(403).json({ message: 'No tienes permiso para aceptar esta invitación' });
         }
 
         const project = await Project.findById(invite.projectId);
@@ -259,7 +278,7 @@ export const acceptInvite = async (req, res) => {
 
         inviteCache.del(token);
 
-        res.status(200).json({ message: 'Te has unido al proyecto correctamente', projectId});
+        res.status(200).json({ message: 'Te has unido al proyecto correctamente', projectId: projectId});
     } catch (error) {
         res.status(500).json({ message: 'Error al aceptar la invitación', error });
     }

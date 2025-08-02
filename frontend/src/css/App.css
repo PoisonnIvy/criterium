@@ -112,20 +112,8 @@
   color: var(--color-brown, #333);
   font-size: 1rem;
 }
-.buttonDefault{
-  background-color: var(--color-terracotta);
-  color:white;
-  font-family: 'Josefin Sans';
-  width:6rem;
-  height: 2rem;
-  border-radius: 10px;
-}
-.buttonDanger{
-  background-color: var(--color-danger);
-  color:white;
-}
-.buttonSelect{
-  background-color: var(--color-select);
+.form-link:hover {
+  color: var(--color-terracotta, #c59d9d);
 }
 
 .projectItem{

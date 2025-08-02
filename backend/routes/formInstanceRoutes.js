@@ -4,7 +4,8 @@ import { isMember, instanceAccess, projectAccess} from '../middleware/hasProject
 import {
     editFormInstance,
     getFormInstanceById,    
-    getAllInstances
+    getAllInstances,
+    getTableData
 } from '../controllers/formInstanceController.js';
 
 const router = Router();
@@ -19,6 +20,8 @@ siempre que se pase el parametro status=completed en la query
 router.patch('/project/:projectId/instance/edit/:instanceId', isMember(),projectAccess, instanceAccess, editFormInstance);
 router.get('/project/:projectId/instance/:assignmentId', isMember(), instanceAccess, getFormInstanceById);
 router.get('/project/:projectId/instances', isMember(), getAllInstances);
+
+router.get('/project/:projectId/tabledata', isMember(), projectAccess, getTableData);
 
 
 export default router;

@@ -2,7 +2,7 @@ import { checkOpenAccessService } from '../services/unpaywall.js';
 import { searchWorksService } from '../services/crossref.js';
 
 export const searchWorks = async (req, res) => {
-    const { title, page = 1, limit = 10, filter} = req.query;
+    const { title, page = 1, limit = 10, filter} = req.body;
     try {
         const result = await searchWorksService({ title, page, limit, filter});
         res.status(200).json(result);

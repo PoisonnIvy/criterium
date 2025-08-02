@@ -14,6 +14,7 @@ const theme = extendTheme({
           solidBg: '#b56a65',
           solidHoverBg: '#a15954',
            color: 'white',
+           fontFamily: 'Josefin sans',
            
           disabled:{
             opacity: 0.6,
@@ -23,12 +24,13 @@ const theme = extendTheme({
         secondary: {
           solidBg: '#4f2621',
           solidHoverBg: '#3d1f1b',
-           color: 'white',
+          color: '#ffffff',
         },
         danger: {
           solidBg: '#a22b27',
           solidHoverBg: '#8b241f',
           color: 'white',
+          fontFamily: 'Josefin sans',
         },
         success: {
           solidBg: '#538e56',
@@ -36,26 +38,20 @@ const theme = extendTheme({
           color: 'white',
         },
         outlined:{
-          backgroundColor: 'transparent',
-          border: '2px solid #b56a65',
-          color: '#b56a65',
-          hover: {
-            border: '2px solid #b56a65',
-            color: 'white',
-          }
+          solidBg: '#c59d9d ',
+          border: '3px solid #8b241f',
+          color: '#ffffffff'
         },
-        // Puedes personalizar más colores aquí
       },
     },
   },
   typography: {
-    fontFamily: "Josefin Sans",
-    span:{fontFamily: "Josefin Sans"},
+    fontFamily: "Josefin sans",
+    span:{fontFamily: "Josefin sans"},
     p: {
-      fontFamily: "Josefin Sans"
+      fontFamily: "Josefin sans"
     },
   },
-  // Puedes agregar tipografía, breakpoints, etc.
 });
 
 const root = ReactDom.createRoot(document.getElementById('root'))

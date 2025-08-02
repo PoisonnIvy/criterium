@@ -10,7 +10,7 @@ export default function Navbar({onMenuClick}) {
   const {user}=useAuth();
   const navigate= useNavigate();
   const location = useLocation();
-  const baseRoutes = ['/', '/login', '/project'];
+  const baseRoutes = ['/', '/login', '/project', '/signup'];
 
   const handleBack = () => {
 

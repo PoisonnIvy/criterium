@@ -47,7 +47,11 @@ export function RISparser(text) {
         if (Object.keys(current).length > 0) {
           if (authors.length) current.authors = parseAuthors(authors);
           if (keywords.length) current.keywords = parseKeywords(keywords);
-          if (languages.length) current.language = parseLanguages(languages);
+          if (languages.length) {
+            current.language = parseLanguages(languages);
+          } else {
+            current.language = 'No definido';
+          }
           records.push(current);
         }
         current = {};
@@ -82,7 +86,11 @@ export function RISparser(text) {
       if (tag === 'ER') {
         if (authors.length) current.authors = parseAuthors(authors);
         if (keywords.length) current.keywords = parseKeywords(keywords);
-        if (languages.length) current.language = parseLanguages(languages);
+        if (languages.length) {
+          current.language = parseLanguages(languages);
+        } else {
+          current.language = "No definido";
+        }
         records.push(current);
         current = {};
         authors = [];
@@ -95,7 +103,11 @@ export function RISparser(text) {
   if (Object.keys(current).length > 0) {
     if (authors.length) current.authors = parseAuthors(authors);
     if (keywords.length) current.keywords = parseKeywords(keywords);
-    if (languages.length) current.language = parseLanguages(languages);
+    if (languages.length) {
+      current.language = parseLanguages(languages);
+    } else {
+      current.language = "No definido";
+    }
     records.push(current);
   }
   return records;

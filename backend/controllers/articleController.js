@@ -62,12 +62,36 @@ export const addArticle = async (req, res) => {
 
 
 export const removeArticle = async (req, res) => {
-
+    const { pdf } = req.query;
+    const article = req.article;
+    const filePath = article.pdfPath ? path.join(__dirname, '..', article.pdfPath) : null;
+    article.modifiedBy = req.session.userId;
     try {
-        await Article.findByIdAndDelete(req.article._id);
-        res.status(204).json({message:'Articulo eliminado exitosamente'});
+        if (pdf === 'true') {
+            if (filePath) {
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        console.error('Error al eliminar el archivo PDF:', err);
+                    }
+                });
+            }
+            article.pdfPath = '';
+            await article.save();
+            return res.status(200).json({ message: 'Archivo PDF eliminado y referencia quitada.' });
+        } else {
+            // Eliminar el artículo y el archivo PDF si existe
+            if (filePath) {
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        console.error('Error al eliminar el archivo PDF:', err);
+                    }
+                });
+            }
+            await Article.findByIdAndDelete(article._id);
+            return res.status(204).json({ message: 'Artículo y archivo PDF eliminados exitosamente.' });
+        }
     } catch (error) {
-        res.status(500).json({ message: 'Error al eliminar el artículo', error });
+        res.status(500).json({ message: 'Error al eliminar el artículo o archivo', error });
     }
 }
 

@@ -10,20 +10,23 @@ import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
-
+import { useEffect } from 'react';
 
 
 export const AssignArticleModal = ({ open, onClose, members, onAssign, loading }) => {
   const [selectedMember, setSelectedMember] = useState('');
+    useEffect(() => {
+    if (open) setSelectedMember('');
+  }, [open]);
 
   const handleAssign = () => {
-    if (selectedMember) {
+    if (selectedMember !== '') {
       onAssign(selectedMember);
-      setSelectedMember('');
-      onClose();
     }
+    setSelectedMember('');
+    console.log(selectedMember)
+    onClose();
   };
-
   return (
     <Modal open={open} onClose={onClose}>
       <ModalDialog>
@@ -37,7 +40,7 @@ export const AssignArticleModal = ({ open, onClose, members, onAssign, loading }
             {members.map(member => (
               <Radio
                 key={member.userId._id}
-                value={member.userId._id}
+                value={member.userId._id.toString()}
                 label={member.userId.name}
               />
             ))}

@@ -4,6 +4,7 @@ import Stack from '@mui/joy/Stack';
 import Skeleton from '@mui/joy/Skeleton';
 import Card from '@mui/joy/Card';
 import Typography from '@mui/joy/Typography';
+import Checkbox from '@mui/material/Checkbox';
 import CardContent from '@mui/joy/CardContent';
 import Box from '@mui/joy/Box';
 import Chip from '@mui/joy/Chip';
@@ -22,6 +23,7 @@ import { AssignArticleModal } from '../../components/assignModal';
 import axios from 'axios'
 import { useParams } from 'react-router-dom';
 import InfoToast from '../../components/InfoToast';
+import { normalizeLanguage } from '../../utils/stringFormater';
 
 const ProjectLibrary = () => {
   const {projectId}=useParams();
@@ -50,31 +52,21 @@ const ProjectLibrary = () => {
       a.reviewerId && 
       a.status !== 'no asignado'  
   );
+
 const filteredArticles = articles.msg
     ? []
-    : articles
-        .filter(article => {
+    : articles.filter(article => {
           if (filter === 'todos' || filter === null) return true;
           return article.status === 'aceptado';
         })
         .filter(article => {
           if (filter === 'libres') return !isAssigned(article._id);
           if (filter === 'tomados') return isAssigned(article._id);
+          if (filter === 'aceptados') return article.status === 'aceptado';
           return true;
         });
 
-const normalizeLanguage = (lang) => {
-  try {
-    const displayNames = new Intl.DisplayNames(['es'], { type: 'language' });
-    if (Array.isArray(lang)) {
-      return lang.map(l => displayNames.of((l || '').toLowerCase())).join(', ');
-    }
-    return displayNames.of((lang || '').toLowerCase());
-  // eslint-disable-next-line no-unused-vars
-  } catch (e) {
-    return lang;
-  }
-};
+
 
   const cleanAbstract = (abstract) => {
     if (!abstract || abstract === 'Abstract no disponible') return abstract;
@@ -86,7 +78,6 @@ const normalizeLanguage = (lang) => {
     setModalOpen(true);
   };
 
-
   const handleAssignArticle = (article) => {
     setArticleToAssign(article);
     setAssignModalOpen(true);
@@ -97,7 +88,7 @@ const normalizeLanguage = (lang) => {
     setAssignLoading(true);
     try {
       await axios.post(`${import.meta.env.VITE_APP_SERVER_URL}/asignacion/project/${projectId}/new/${articleToAssign}`,
-        {memberId},
+        {reviewerId: memberId},
         {withCredentials:true}
       )
       fetchAssignments(projectId);
@@ -111,6 +102,7 @@ const normalizeLanguage = (lang) => {
     } catch (error) {
       console.log(error)
       setAssignLoading(false);
+      setAssignModalOpen(false);
       setToast({ open: true, message: 'Error al asignar el artículo.', type: 'error' });
     }
   };
@@ -118,8 +110,9 @@ const normalizeLanguage = (lang) => {
     const handleReassignArticle = (article) => {
     setArticleToAssign(article);
     setAssignModalOpen(true);
-    console.log('Asignar artículo:', article);
+    console.log('reasignar artículo:', article);
   };
+  
     const handlerReassignToMember = async (memberId) => {
       setAssignLoading(true);
       try {
@@ -145,6 +138,7 @@ const normalizeLanguage = (lang) => {
       } catch (error) {
         console.log(error);
         setAssignLoading(false);
+        setAssignModalOpen(false);
         setToast({ 
           open: true, 
           message: 'Error al reasignar el artículo.', 
@@ -194,18 +188,19 @@ const normalizeLanguage = (lang) => {
   };
 
   const getPreviousAssigned= (articleId) => {
-  const prevAssignment = assignments.find(
-    a =>
-      a.articleId &&
-      a.articleId._id === articleId &&
-      !a.reviewerId &&
-      a.status === 'no asignado' &&
-      a.assignedBy
-  );
-  if (!prevAssignment) return false;
- 
-  return true
-};
+    const assignmentsArray = Array.isArray(assignments) ? assignments : Object.values(assignments);
+    const prevAssignment = assignmentsArray.find(
+      a =>
+        a.articleId &&
+        a.articleId._id === articleId &&
+        !a.reviewerId &&
+        a.status === 'no asignado' &&
+        a.assignedBy
+    );
+    if (!prevAssignment) return false;
+  
+    return true
+  };
 
   return (
     <Box component="main" sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
@@ -221,6 +216,7 @@ const normalizeLanguage = (lang) => {
         >
           <Option value='todos'>Todos</Option>
           <Option value="libres">Libres</Option>
+          <Option value="aceptados">Aceptados</Option>  
           <Option value="tomados">Tomados</Option>
         </Select>
       </Box>
@@ -259,12 +255,12 @@ const normalizeLanguage = (lang) => {
                       {article.publicationType !== 'No definido' && (
                         <Chip size="sm" variant="soft">{article.publicationType}</Chip>
                       )}
-                      {article.language && article.language.length > 0 && (
+                      {article.language !== 'No definido' && (
                         <Chip size="sm" variant="soft" color="neutral">
-                          {normalizeLanguage(article.language)}
+                          {normalizeLanguage(article.language)} 
                         </Chip>
                       )}
-                      <Chip size="sm" variant='solid' color={article.status === 'aceptado' ? 'success' : article.status === 'rechazado' ? 'danger' : 'neutral'}>
+                      <Chip size="sm" variant='solid' color={article.status === 'aceptado' ? 'success' : article.status === 'descartado' ? 'danger' : 'neutral'}>
                           {article.status}
                       </Chip>
                     </Stack>
@@ -280,7 +276,6 @@ const normalizeLanguage = (lang) => {
                     <Stack direction="row" spacing={1} alignItems="center">
                       <Button
                           size="sm"
-                          variant="soft"
                           onClick={() => openArticleModal(article)}
                           startDecorator={<Visibility />}
                         >
@@ -289,13 +284,12 @@ const normalizeLanguage = (lang) => {
                         {['investigador principal', 'editor'].includes(role) && article.status ==='aceptado' ? (
                           isAssigned(article._id) ? (
                             <Stack direction="row" spacing={1} alignItems="center">
-                            <Chip size="sm" variant="solid" color="primary">
+                            <Chip size="sm" color="warning" variant="soft">
                               Asignado a: {getAssignedUserName(article._id)}
                             </Chip>
                             <Button
                               size="sm"
-                              variant="soft"
-                              sx={{ background: '#4f2621' }}
+                              sx={{background: '#4f2621', color: 'white'}}
                               color="white"
                               disabled={isBlocked || baseform.msg? true:false}
                               onClick={() => handleReassignArticle(article._id)}
@@ -307,9 +301,8 @@ const normalizeLanguage = (lang) => {
                             <Stack direction='row' spacing={2}>
                             <Button
                               size="sm"
-                              variant="soft"
-                              sx={{ background: '#4f2621' }}
                               color="white"
+                              sx={{background: '#4f2621', color: 'white'}}
                               disabled={isBlocked || baseform.msg? true:false}
                               onClick={() => handleAssignArticle(article._id)}
                             >
@@ -321,7 +314,8 @@ const normalizeLanguage = (lang) => {
                                   </Tooltip>
                               ) : 'Asignar a'}
                             </Button>
-                            {getPreviousAssigned(article._id) && article.status ==='aceptado' && (
+
+                            {isAssigned(article._id) && article.status ==='aceptado' && (
                               <Chip size="sm" variant="soft" color="warning">
                                 Este artículo fue revisado previamente por otro miembro
                               </Chip>
@@ -366,7 +360,7 @@ const normalizeLanguage = (lang) => {
           )}
         </Stack>
       )}
-
+{/*modal de detalles del articulo */}
             <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
               <ModalDialog size="lg" sx={{ maxWidth: 1000, maxHeight: '90vh', overflow: 'auto' }}>
                 <ModalClose />
@@ -385,10 +379,26 @@ const normalizeLanguage = (lang) => {
                         {selectedArticle.publisher && (
                           <Chip variant="soft" color="neutral">{selectedArticle.publisher}</Chip>
                         )}
+                        {selectedArticle.status && 
+                        <Chip 
+                          variant="solid" 
+                          color={selectedArticle.status === 'aceptado' ? 'success' : 'danger'}
+                        >{selectedArticle.status}</Chip>}
                       </Stack>
       
                       <Divider />
-      
+                      {selectedArticle.criteriaNotes !== '' && selectedArticle.status === 'descartado' && (
+                        <Box backgroundColor="#f8d7da" sx={{ p: 2, borderRadius: 1 }}>
+                          <Typography level="title-sm" sx={{ mb: 1 }}>Motivo de descarte:</Typography>
+                          <Typography>{selectedArticle.criteriaNotes}</Typography>
+                      </Box>
+                      )}
+                      {selectedArticle.criteriaNotes !== '' && selectedArticle.status === 'aceptado' && (
+                        <Box backgroundColor="#d4edda" sx={{ p: 2, borderRadius: 1 }}>
+                          <Typography level="title-sm" sx={{ mb: 1 }}>Observaciones:</Typography>
+                          <Typography>{selectedArticle.criteriaNotes}</Typography>
+                      </Box>
+                      )}
                       <Box>
                         <Typography level="title-sm" sx={{ mb: 1 }}>Autores:</Typography>
                         <Typography level="body-md">
@@ -434,12 +444,12 @@ const normalizeLanguage = (lang) => {
                         <Stack direction="row" spacing={2}>
                           {selectedArticle.citationCount && (
                             <Chip variant="soft" color="success">
-                             {selectedArticle.citationCount} citas
+                             {selectedArticle.citationCount=== '0' ? 'Sin citas' : `${selectedArticle.citationCount} citas`}
                             </Chip>
                           )}
                           {selectedArticle.referenceCount && (
                             <Chip variant="soft" color="warning">
-                              {selectedArticle.referenceCount} referencias
+                              {selectedArticle.referenceCount=== '0' ? 'Sin referencias' : `${selectedArticle.referenceCount} referencias`}
                             </Chip>
                           )}
                         </Stack>
@@ -460,9 +470,9 @@ const normalizeLanguage = (lang) => {
                   </Box>
                 )}
               </ModalDialog>
-              {/* modal de asignacion*/}
             </Modal>
-            <AssignArticleModal
+      {/* modal de asignacion*/}
+      <AssignArticleModal
         open={assignModalOpen}
         onClose={() => setAssignModalOpen(false)}
         members={project?.members || []}

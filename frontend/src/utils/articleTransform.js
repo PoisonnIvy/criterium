@@ -2,17 +2,10 @@
 export function transformArticlePayload(values) {
   const payload = { ...values };
 
-  // keywords y language: array de strings
   if (typeof payload.keywords === 'string') {
     payload.keywords = payload.keywords
       .split(',')
       .map(k => k.trim())
-      .filter(Boolean);
-  }
-  if (typeof payload.language === 'string') {
-    payload.language = payload.language
-      .split(',')
-      .map(l => l.trim())
       .filter(Boolean);
   }
 

@@ -7,22 +7,11 @@ import Box from '@mui/joy/Box';
 import Stack from '@mui/joy/Stack';
 import Chip from '@mui/joy/Chip';
 import Button from '@mui/joy/Button';
+import { normalizeLanguage } from '../utils/stringFormater';
 
 export default function ArticleDetailsModal({ open, onClose, article }) {
   if (!article) return null;
 
-  const normalizeLanguage = (lang) => {
-  try {
-    const displayNames = new Intl.DisplayNames(['es'], { type: 'language' });
-    if (Array.isArray(lang)) {
-      return lang.map(l => displayNames.of((l || '').toLowerCase())).join(', ');
-    }
-    return displayNames.of((lang || '').toLowerCase());
-  // eslint-disable-next-line no-unused-vars
-  } catch (e) {
-    return lang;
-  }
-};
 
   const cleanAbstract = (abstract) => {
     if (!abstract || abstract === 'Abstract no disponible') return abstract;

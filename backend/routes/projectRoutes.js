@@ -28,7 +28,7 @@ router.patch('/change/:projectId', isMember(['investigador principal']), changeP
 
 //rutas para admiistrar usuarios,roles, añadir, eliminar
 router.delete('/leave/:projectId',isMember(['colaborador', 'editor']), projectAccess, leaveProject); //para dejar un proyecto, se le pasa el id del proyecto
-router.patch('/member/:projectId/:memberId', isMember(['investigador principal','editor']), projectAccess, removeMember) // eliminar
+router.patch('/member/:projectId/:memberId', isMember(['investigador principal','editor']), projectAccess, removeMember) // eliminar miembro
 router.patch('/member/:projectId/:memberId/role', isMember(['investigador principal','editor']), projectAccess, changeRole) // cambiar rol de miembro, se le pasa el id del proyecto y el id del miembro
 router.post('/invite/:projectId', isMember(['investigador principal','editor']), projectAccess, inviteMember) // envir invitacion
 router.post('/accept/:token', acceptInvite) // aceptar invitación

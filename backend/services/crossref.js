@@ -2,35 +2,36 @@ import axios from 'axios';
 import NodeCache from 'node-cache';
 
 const crossref_url = 'https://api.crossref.org';
-const mail = process.env.MAILTO;
-export const crossrefCache = new NodeCache({ stdTTL: 7 * 24 * 60 * 60, checkperiod: 24*60*60 });
+const mail = process.env.GMAIL;
+export const crossrefCache = new NodeCache({ stdTTL: 3 * 24 * 60 * 60, checkperiod: 24*60*60 });
 
 export async function searchWorksService({ title, page = 1, limit = 10, filter = {} }) {
-    const { abstract, publicationType, yearFrom, yearTo } = filter || {};
-    const cacheKey = `${title.toLowerCase()}_${page}_${limit}`;
+    const { abstract, journal, yearFrom, yearTo } = filter || {};
+    const cacheKey = `${title.toLowerCase()}_${page}_${limit}_${abstract}_${journal}_${yearFrom}_${yearTo}`;
     const cached = crossrefCache.get(cacheKey);
     if (cached) {
         return cached;
     }
-    try {
+  try {
         const offset = (parseInt(page) - 1) * parseInt(limit);
 
         let crossrefFilters = [];
-        if (publicationType) crossrefFilters.push(`type:${publicationType}`);
-        if (yearFrom) crossrefFilters.push(`from-pub-date:${yearFrom}`);
-        if (yearTo) crossrefFilters.push(`until-pub-date:${yearTo}`);
-        if (typeof abstract === 'boolean') {
-            crossrefFilters.push(`has-abstract:${abstract ? 1 : 0}`);
-        }
+        if (journal==true) crossrefFilters.push(`type:journal-article`);
+        if (yearFrom) crossrefFilters.push(`from-pub-date:${yearFrom.toString()}-01-01`);
+        if (yearTo) crossrefFilters.push(`until-pub-date:${yearTo.toString()}-12-31`);
+        if (abstract == true) crossrefFilters.push(`has-abstract:1`)
+        
 
-        const response = await axios.get(`${crossref_url}/works`, {
-            params: {
+        const params = {
                 'query.title': title,
                 rows: limit,
                 offset: offset,
                 mailto: mail,
-                filter: crossrefFilters.length ? crossrefFilters.join(',') : undefined
+                filter: crossrefFilters.length>0 ? crossrefFilters.join(',') : undefined,
+                sort: 'relevance'
             }
+        const response = await axios.get(`${crossref_url}/works`, {
+            params
         });
 
         const works = response.data.message.items.map(work => ({
