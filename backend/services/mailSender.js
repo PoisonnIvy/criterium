@@ -177,3 +177,41 @@ export const sendCommentResolvedMail = async ({ to, userName, commentText, proje
     return { success: false, error };
   }
 };
+
+export const sendResetPasswordMail = async (norm_email, resetLink, name) => {
+  try {
+    const html = getBaseMailHtml({
+      title: 'Restablecimiento de contraseña',
+      content: `
+        <h2 style="color:#4b3132;">Hola ${name} 👋</h2>
+        <p style="color:#666; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+          Has solicitado restablecer tu contraseña en Criterium.<br>
+          Haz clic en el siguiente enlace para continuar con el proceso:
+        </p>
+        <div style="text-align: center; margin: 40px 0;">
+          <a href="${resetLink}" style="display: inline-block; background: linear-gradient(45deg, #a22c27, #b56a65); color: white; padding: 18px 32px; border-radius: 15px; font-size: 1.2em; text-decoration: none; font-weight: bold; box-shadow: 0 8px 25px rgba(135, 141, 169, 0.3);">Restablecer contraseña</a>
+        </div>
+        <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 20px; margin: 30px 0;">
+          <div style="display: flex; align-items: center;">
+            <span style="font-size: 20px; margin-right: 10px;">⏰</span>
+            <div>
+              <strong style="color: #856404;">Importante:</strong>
+              <p style="color: #856404; margin: 5px 0 0 0; font-size: 14px;">Este enlace y código expiran en <strong>10 minutos</strong>. Si no lo usas a tiempo, tendrás que solicitar uno nuevo.</p>
+            </div>
+          </div>
+        </div>
+        <p style="color: #666; font-size: 14px; line-height: 1.6;">Si no solicitaste este código, puedes ignorar este email de forma segura.</p>
+      `
+    });
+    const info = await transporter.sendMail({
+      from: `'Criterium' <${process.env.GMAIL}>`,
+      to: norm_email,
+      subject: 'Restablecimiento de contraseña Criterium',
+      html,
+      text: `Hola ${name}! Para restablecer tu contraseña, ingresa al siguiente enlace: ${resetLink} (expira en 10 minutos).`
+    });
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};

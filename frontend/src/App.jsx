@@ -1,6 +1,6 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 import { Login, Signup, Project,  Profile, Analize,
-        Invitation} from "./pages";
+        Invitation, RestorePassword} from "./pages";
 import './css/App.css'
 import DrawerNav from "./layout/Drawer";
 import Navbar from "./layout/Navbar";
@@ -32,7 +32,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/invitacion/:token" element={<Invitation/>}/>
-          
+          <Route path="/reset-password/:restore" element={<RestorePassword/>}/>
 
           <Route path="/perfil" element={
               <ProtectedRoute>

@@ -1,9 +1,9 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import validator from "validator";
-import { sendWelcomeEmail } from "../services/mailSender.js";
-import { validationTokenCache } from "../index.js";
-import { sendVerificationCodeMail } from "../services/mailSender.js";
+import { sendResetPasswordMail, sendWelcomeEmail,sendVerificationCodeMail  } from "../services/mailSender.js";
+import { validationTokenCache, resetPasswordCache, passwordTokenCache } from "../index.js";
 
 export const Signup = async(req,res) =>{
   const {email, name, password} = req.body;
@@ -101,6 +101,7 @@ export const Login = async (req, res) => {
   } catch (error) {
     res.status(400)
     console.error(error);
+    console.log("ola")
   }
 }
 
@@ -148,5 +149,78 @@ export const checkEmail = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Error al verificar el correo" });
+  }
+}
+
+
+// se envia un link para resetear
+export const resetPassword = async (req, res) => {
+  const {email}= req.body;
+  const norm_email= validator.normalizeEmail(email,{gmail_remove_dots:false});
+  try {
+    const user = await User.findOne({ email:norm_email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+    }
+    const token = Math.floor(100000 + Math.random() * 9000).toString();
+    passwordTokenCache.set(norm_email, token);
+
+    const tokenData = JSON.stringify({ email: norm_email, token });
+    
+    const iv = Buffer.from(process.env.TOKEN_IV, 'hex');
+    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(process.env.TOKEN_SECRET, 'hex'), iv);
+    let encryptedToken = cipher.update(tokenData, 'utf8', 'hex');
+    encryptedToken += cipher.final('hex');
+
+    resetPasswordCache.set(encryptedToken,{ email: norm_email, token });
+
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${encryptedToken}`;
+
+    await sendResetPasswordMail(norm_email, resetLink, user.name);
+
+    res.status(200).json({ success: true, message: "Código enviado al correo" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Error al enviar el correo" });
+  }
+}
+
+//llega el token y la nueva contraseña
+export const validateResetPassword = async (req, res) => {
+  const {token}= req.params;
+  const {newPassword, confirmPassword} = req.body;
+
+  try{
+    const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(process.env.TOKEN_SECRET, 'hex'), Buffer.from(process.env.TOKEN_IV, 'hex'));
+    let decryptedToken = decipher.update(token, 'hex', 'utf8');
+    decryptedToken += decipher.final('utf8');
+    
+    const code = JSON.parse(decryptedToken);
+    if (!code || !code.email || !code.token) {
+      return res.status(400).json({ message: "Token inválido" });
+    }
+    const passToken = passwordTokenCache.get(code.token);
+    if (!passToken || passToken.email !== code.email) {
+      return res.status(400).json({ message: "Token inválido o expirado" });
+    }
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Las contraseñas no coinciden" });
+    }
+    if (!validator.isStrongPassword(newPassword, [ { minLength: 8, minUppercase: 1, minNumbers: 1, minSymbols: 1 }])) {
+      return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres y contener al menos una letra mayúscula, un número y un símbolo." });
+    }
+    const email = passToken.email;
+    const norm_email= validator.normalizeEmail(email,{gmail_remove_dots:false});
+    const user = await User.findOne({ email: norm_email });
+    user.password = newPassword;
+    await user.save();
+    res.status(200).json({ message: "Contraseña actualizada correctamente" });
+    passwordTokenCache.del(code.token);
+    resetPasswordCache.del(token);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al actualizar la contraseña, intentalo más tarde" });
+    passwordTokenCache.del(code.token);
+    resetPasswordCache.del(token);
   }
 }

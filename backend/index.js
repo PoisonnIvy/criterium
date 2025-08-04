@@ -20,27 +20,33 @@ const __dirname = path.dirname(__filename);
 
 export const cache = new NodeCache({ 
   stdTTL: 3600, // 1 hora
-  checkperiod: 600, // Limpiar cada 10 minutos
-  maxKeys: 1000  }); 
+  checkperiod: 600 // Limpiar cada 10 minutos
+  }); 
 
 export const validationTokenCache = new NodeCache({ 
-  stdTTL: 3600, // 1 hora
-  checkperiod: 600, // Limpiar cada 10 minutos
-  maxKeys: 1000  }); 
+  stdTTL: 3600,
+  checkperiod: 600, 
+  }); 
 
 export const baseformTokenCache = new NodeCache({ 
-  stdTTL: 3600, // 1 hora
-  checkperiod: 600,
-  maxKeys: 1000  });
+  stdTTL: 3600,
+  checkperiod: 600
+  });
 
 export const inviteCache = new NodeCache({ 
   stdTTL: 7 * 24 * 60 * 60, 
-  checkperiod: 600, 
-  maxKeys: 5000 });
+  checkperiod: 600
+  });
 
-
+export const resetPasswordCache = new NodeCache({ 
+  stdTTL: 600,
+  checkperiod: 600
+});
+export const passwordTokenCache = new NodeCache({ 
+  stdTTL: 600,
+  checkperiod: 600
+});
 const app = express();
-
 
 
 app.use(

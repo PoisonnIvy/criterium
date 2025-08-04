@@ -9,6 +9,8 @@ import IconButton from '@mui/joy/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import {useAuth} from "../hooks/useAuth";
+import Stack from "@mui/material/Stack";
+import ForgotPassword from "../components/ForgotPassword";
 
 const Login = () => {
   const {fetchUser} = useAuth();
@@ -18,6 +20,7 @@ const Login = () => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
   const { email, password } = inputValue;
 
 
@@ -91,7 +94,12 @@ const Login = () => {
             placeholder="Ingresa tu correo electronico"
             onChange={handleOnChange}
         />
+        <Stack sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px'}}>
         <FormLabel sx={{ fontFamily: "'Josefin Sans', sans-serif" }}>Contraseña</FormLabel>
+        <FormLabel  onClick={() => setShowForgotModal(true)}
+                    sx={{ fontFamily: "'Josefin Sans', sans-serif", color:"#b56a65" }} 
+                    to={"/restore-password"}>Olvidé mi contraseña</FormLabel>
+        </Stack>
           <Input
           sx={{ fontFamily: "'Josefin Sans', sans-serif" }}
           fullWidth
@@ -110,6 +118,7 @@ const Login = () => {
               </IconButton>
             }
           />
+          
         <Button sx={{ fontFamily: "'Josefin Sans', sans-serif", 
                       backgroundColor:'#538e56ff',
                       color:'#fff',
@@ -119,6 +128,7 @@ const Login = () => {
           ¿No tienes una cuenta? <Link className='a' to={"/signup"}>Regístrate</Link>
         </span>
       <ToastContainer />
+      <ForgotPassword open={showForgotModal} onClose={() => setShowForgotModal(false)} />
     </div>
   );
 };
