@@ -29,16 +29,11 @@ function parseKeywords(values) {
   return values.map(k => k.trim());
 }
 
-function parseLanguages(values) {
-  return values.map(l => l.trim());
-}
-
 export function RISparser(text) {
   const records = [];
   let current = {};
   let authors = [];
   let keywords = [];
-  let languages = [];
   text.split(/\r?\n/).forEach(line => {
     const match = line.match(/^([A-Z0-9]{2}) {2}- (.*)$/);
     if (match) {
@@ -47,17 +42,11 @@ export function RISparser(text) {
         if (Object.keys(current).length > 0) {
           if (authors.length) current.authors = parseAuthors(authors);
           if (keywords.length) current.keywords = parseKeywords(keywords);
-          if (languages.length) {
-            current.language = parseLanguages(languages);
-          } else {
-            current.language = 'No definido';
-          }
           records.push(current);
         }
         current = {};
         authors = [];
         keywords = [];
-        languages = [];
       }
       const field = RIS_TO_ARTICLE[tag];
       if (field) {
@@ -65,9 +54,7 @@ export function RISparser(text) {
           authors.push(value);
         } else if (field === 'keywords') {
           keywords.push(value);
-        } else if (field === 'language') {
-          languages.push(value);
-        } else if (field === 'pages') {
+        } else if(field === 'pages') {
           // concatena SP + EP
           if (current.pages) {
             current.pages += '-' + value;
@@ -86,16 +73,11 @@ export function RISparser(text) {
       if (tag === 'ER') {
         if (authors.length) current.authors = parseAuthors(authors);
         if (keywords.length) current.keywords = parseKeywords(keywords);
-        if (languages.length) {
-          current.language = parseLanguages(languages);
-        } else {
-          current.language = "No definido";
-        }
+
         records.push(current);
         current = {};
         authors = [];
         keywords = [];
-        languages = [];
       }
     }
   });
@@ -103,11 +85,7 @@ export function RISparser(text) {
   if (Object.keys(current).length > 0) {
     if (authors.length) current.authors = parseAuthors(authors);
     if (keywords.length) current.keywords = parseKeywords(keywords);
-    if (languages.length) {
-      current.language = parseLanguages(languages);
-    } else {
-      current.language = "No definido";
-    }
+
     records.push(current);
   }
   return records;

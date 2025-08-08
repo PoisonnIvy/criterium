@@ -11,7 +11,6 @@
   display: flex;
   align-items: center;
   padding: 0.4rem 2rem;
-  justify-content:flex-start;
   gap: 1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

@@ -1,3 +1,50 @@
+import fs from 'fs';
+
+// EXPORTAR FIELDS COMO JSON
+export const exportFieldsAsJson = async (req, res) => {
+    const project = req.project;
+    try {
+        const baseform = await BaseForm.findOne({ projectId: project._id });
+        if (!baseform) return res.status(404).json({ message: 'Formulario base no encontrado' });
+        res.setHeader('Content-Disposition', 'attachment; filename="fields.json"');
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).send(JSON.stringify(baseform.fields, null, 2));
+    } catch (error) {
+        res.status(500).json({ message: 'Error al exportar fields', error });
+    }
+};
+
+// IMPORTAR FIELDS DESDE JSON Y CREAR FORMULARIO BASE
+export const importFieldsFromJson = async (req, res) => {
+    const { projectId } = req.params;
+    const userId = req.session.userId;
+    if (!req.file) {
+        return res.status(400).json({ message: 'No se subió ningún archivo' });
+    }
+    try {
+        const fileContent = fs.readFileSync(req.file.path, 'utf-8');
+        let fields;
+        try {
+            fields = JSON.parse(fileContent);
+        } catch (e) {
+            return res.status(400).json({ message: 'El archivo no es un JSON válido' });
+        }
+        if (!Array.isArray(fields)) {
+            return res.status(400).json({ message: 'El archivo debe ser un array de fields' });
+        }
+        // Eliminar formulario base anterior si existe para ese proyecto
+        await BaseForm.deleteOne({ projectId });
+        const newBaseForm = new BaseForm({
+            projectId,
+            fields,
+            updatedBy: userId,
+        });
+        await newBaseForm.save();
+        res.status(201).json({ message: 'Formulario base creado exitosamente', baseForm: newBaseForm });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al importar fields', error });
+    }
+};
 import BaseForm from '../models/baseForm.js';
 import User from '../models/user.js';
 import { baseformTokenCache } from '../index.js';

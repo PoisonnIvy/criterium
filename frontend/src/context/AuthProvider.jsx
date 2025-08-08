@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useMemo, createContext, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+//import { useNavigate } from 'react-router-dom';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext= createContext(null);
@@ -9,7 +9,7 @@ export const AuthContext= createContext(null);
 export const AuthProvider=({ children })=> {
   const [user, setUser] = useState(null); //user:{name,userId,createdAt,lastlogin, email}
   const [loading, setLoading] = useState(true);
-  const navigate=useNavigate();
+  //const navigate=useNavigate();
 
   const fetchUser = async () => {
     setLoading(true);
@@ -22,7 +22,6 @@ export const AuthProvider=({ children })=> {
       
     } catch (error) {
       setUser(null);
-      navigate('/login')
       console.error({error: error});
     } finally {
       setLoading(false);

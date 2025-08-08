@@ -3,7 +3,7 @@ import { limits, storage, fileFilter } from '../config/multer.js'
 
 
 const upload = multer({
-    storage: multer.diskStorage(storage),
+    storage,
     fileFilter,
     limits,
 });

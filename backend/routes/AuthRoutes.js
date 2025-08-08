@@ -11,5 +11,5 @@ router.post("/logout",requireAuth, Logout)
 router.get("/me", checkAuth);
 
 router.post("/reset-password", resetPassword); //envia link
-router.post("/validate-password", validateResetPassword); //recibe token y nueva contraseña
+router.post("/validate-password/:token", validateResetPassword); //recibe token y nueva contraseña
 export default router;

@@ -16,7 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import InfoToast from '../../components/InfoToast';
-import CircularProgress from '@mui/material/CircularProgress';
+import CircularProgress from '@mui/joy/CircularProgress';
 import { sanitizeString } from '../../utils/stringFormater';
 
 const MAX_META_FILES = 10;
@@ -144,7 +144,7 @@ const normalizeArticle = (article) => ({
   publisher: sanitizeString(article.publisher || ''),
   referenceCount: Number(article.referenceCount) || 0,
   citationCount: Number(article.citationCount) || 0,
-  language: Array.isArray(article.language) ? article.language.map(sanitizeString) : ['No definido'],
+  language: sanitizeString(article.language? article.language : 'No definido') 
 });
 
   const handleMetadataUpload = async ()=> {
@@ -181,6 +181,7 @@ const normalizeArticle = (article) => ({
             message: `${error.response.data.message}`,
             type: 'info'
           });
+          console.error('Error al subir el artículo:', error);
         }
       }
     }
@@ -474,7 +475,7 @@ const normalizeArticle = (article) => ({
         <ModalDialog sx={{ maxWidth: 700, maxHeight: '90vh', overflow: 'auto', bgcolor: 'background.body', borderRadius: 3 }}>
           <Stack direction='row' gap={10} alignItems="center" sx={{ mb: 2 }}>
             <Typography level="h4" sx={{ color: 'var(--color-terracotta)' }}>Detalles de los metadatos cargados</Typography>
-            {uploading?(<CircularProgress color='inherit'/>):(<Button startDecorator={<FileUploadTwoToneIcon />} onClick={handleMetadataUpload} color="primary" variant="solid">
+            {uploading?(<CircularProgress/>):(<Button startDecorator={<FileUploadTwoToneIcon />} onClick={handleMetadataUpload} color="primary" variant="solid">
               Subir
             </Button>)}
           </Stack>
@@ -505,7 +506,7 @@ const normalizeArticle = (article) => ({
         <ModalDialog sx={{ maxWidth: 700, maxHeight: '90vh', overflow: 'auto', bgcolor: 'background.body', borderRadius: 3 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
             <Typography level="h4" sx={{ color: 'var(--color-terracotta)' }}>Asignar PDFs a artículos</Typography>
-            {uploading?(<CircularProgress color='inherit'/>):( <Button
+            {uploading?(<CircularProgress/>):( <Button
               size="md"
               color="primary"
               variant="solid"

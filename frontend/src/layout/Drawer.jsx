@@ -51,7 +51,7 @@ export default function DrawerNav({ open, onClose }) {
             px: 0,
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center'
+            alignItems: 'center'            
           }}
         >
           <Avatar
@@ -63,7 +63,8 @@ export default function DrawerNav({ open, onClose }) {
               fontSize: 32,
               width: 56,
               height: 56,
-              mb: 1
+              mb: 1,
+              cursor: 'pointer'
             }}
             onClick={() => { navigate("/perfil"); onClose(); }}
           >

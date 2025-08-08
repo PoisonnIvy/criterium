@@ -11,6 +11,7 @@ import Checkbox from '@mui/joy/Checkbox';
 import Textarea from '@mui/joy/Textarea';
 import  Divider from '@mui/joy/Divider';
 import BaseFormModal from '../../components/baseForm';
+import UploadModal from '../../components/UploadForm';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios'
@@ -26,6 +27,7 @@ const ProjectBaseForm = () => {
   const [expTime, setExpTime] =useState(null);
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState([]);
+  const [openUpload, setOpenUpload] = useState(false);
   const isBlocked = project && ['completado', 'deshabilitado'].includes(project.status);
 
   useEffect(() => {
@@ -226,9 +228,11 @@ const renderField = (field, index) => {
           )}
           {baseform.msg ? (
             <Stack direction='column' sx={{ display: 'contents' }}>
-              <Typography sx={{ p: 1 }}>{baseform.msg}</Typography>
               {['investigador principal'].includes(role) && baseform.msg && (
-                <Button disabled={isBlocked} onClick={handleCreateForm} sx={{ bgcolor:'#4f2621' }}>Crear formulario guía</Button>
+                <>
+                <Button disabled={isBlocked} onClick={handleCreateForm} sx={{ bgcolor:'#4f2621', mr:3 }}>Crear formulario guía</Button>
+                <Button disabled={isBlocked} onClick={setOpenUpload} sx={{ bgcolor:'#4f2621' }}>Subir plantilla de formulario</Button>
+                </>
               )}
             </Stack>
           ) : (
@@ -296,6 +300,13 @@ const renderField = (field, index) => {
         initialFields={fieldsToEdit}
         timeLeft={expTime}
       />
+
+      <UploadModal 
+      open={openUpload}
+      projectId={projectId}
+      onClose={() => setOpenUpload(false)} 
+      />
+
     </Box>
   );
 };

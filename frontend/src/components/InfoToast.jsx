@@ -16,6 +16,7 @@ const typeColor = {
 const InfoToast = ({
     open,
     message,
+    close,
     type = 'info',
     showConfirm = false,
     showCancel = false,
@@ -68,7 +69,7 @@ const InfoToast = ({
                             color={typeColor[type] || 'primary'}
                             onClick={onClose}
                         >
-                            Cerrar
+                            {close? close : 'Cerrar'}
                         </Button>
                     )}
                 </div>
