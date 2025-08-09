@@ -90,7 +90,6 @@ const ProjectBaseForm = () => {
 
   //subir una plantilla de formulario existente
   const handleUploadForm = async (fields) => {
-    console.log(fields)
     try {
       await axios.post(
         `${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/import-fields`,
@@ -110,7 +109,6 @@ const ProjectBaseForm = () => {
 
   // guardar formulario editado
   const handleUpdateForm = async (fields) => {
-    console.log(fields)
     try {
       await axios.patch(
         `${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/update/${baseform._id}?token=${token}`,
