@@ -1,3 +1,5 @@
+
+
 /* eslint-disable react-hooks/exhaustive-deps */
 import Box from '@mui/joy/Box';
 import Typography from '@mui/joy/Typography';
@@ -12,6 +14,7 @@ import Textarea from '@mui/joy/Textarea';
 import  Divider from '@mui/joy/Divider';
 import BaseFormModal from '../../components/baseForm';
 import UploadModal from '../../components/UploadForm';
+import InfoToast from '../../components/InfoToast';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios'
@@ -28,6 +31,7 @@ const ProjectBaseForm = () => {
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState([]);
   const [openUpload, setOpenUpload] = useState(false);
+  const [toast, setToast] = useState({ open: false, message: '', type: 'info' });
   const isBlocked = project && ['completado', 'deshabilitado'].includes(project.status);
 
   useEffect(() => {
@@ -84,8 +88,29 @@ const ProjectBaseForm = () => {
     setModalOpen(true);
   };
 
+  //subir una plantilla de formulario existente
+  const handleUploadForm = async (fields) => {
+    console.log(fields)
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/import-fields`,
+        { fields },
+        { withCredentials: true }
+      );
+      setModalOpen(false);
+      setToast({ open: true, message: 'Formulario importado correctamente', type: 'success' });
+
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        setToast({ open: true, message: error.response.data.message, type: 'error' });
+      }
+      console.log(error);
+    }
+  };
+
   // guardar formulario editado
   const handleUpdateForm = async (fields) => {
+    console.log(fields)
     try {
       await axios.patch(
         `${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/update/${baseform._id}?token=${token}`,
@@ -118,6 +143,23 @@ const ProjectBaseForm = () => {
     }
   }
 
+  //descarga la plantilla del formulario
+  const handleDownloadTemplate = () => {
+  if (!baseform || !Array.isArray(baseform.fields) || baseform.fields.length === 0) {
+    setToast({ open: true, message: 'No hay formulario base para exportar', type: 'warning' });
+    return;
+  }
+  const data = { fields: baseform.fields };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'fields.json';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
 
   //añadir comentarios para los colaboradores
   const handleAddComment = async () => {
@@ -222,9 +264,19 @@ const renderField = (field, index) => {
 
         <Box sx={{ flex: 2, minWidth: 0 }}>
           {['investigador principal', 'editor'].includes(role) && !baseform.msg && (
-            <Button disabled={isBlocked} onClick={handleEditForm} sx={{ mb: 2, bgcolor:'#4f2621' , color:'white'}}>
+            <Button 
+              disabled={isBlocked} 
+              onClick={handleEditForm} 
+              sx={{ mb: 2, bgcolor:'#4f2621' , color:'white', mr:3}}>
               Editar formulario
             </Button>
+          )}
+          {!baseform.msg && (
+            <Button 
+              disabled={isBlocked} 
+              onClick={handleDownloadTemplate} 
+              sx={{ mb: 2, bgcolor:'#4f2621' , color:'white'}}>
+              Descargar plantilla de formulario(.json)</Button>
           )}
           {baseform.msg ? (
             <Stack direction='column' sx={{ display: 'contents' }}>
@@ -300,11 +352,18 @@ const renderField = (field, index) => {
         initialFields={fieldsToEdit}
         timeLeft={expTime}
       />
+     <InfoToast
+        open={toast.open}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ ...toast, open: false })}
+      />
 
       <UploadModal 
       open={openUpload}
       projectId={projectId}
       onClose={() => setOpenUpload(false)} 
+      onSubmit={handleUploadForm}
       />
 
     </Box>

@@ -1,50 +1,4 @@
-import fs from 'fs';
 
-// EXPORTAR FIELDS COMO JSON
-export const exportFieldsAsJson = async (req, res) => {
-    const project = req.project;
-    try {
-        const baseform = await BaseForm.findOne({ projectId: project._id });
-        if (!baseform) return res.status(404).json({ message: 'Formulario base no encontrado' });
-        res.setHeader('Content-Disposition', 'attachment; filename="fields.json"');
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200).send(JSON.stringify(baseform.fields, null, 2));
-    } catch (error) {
-        res.status(500).json({ message: 'Error al exportar fields', error });
-    }
-};
-
-// IMPORTAR FIELDS DESDE JSON Y CREAR FORMULARIO BASE
-export const importFieldsFromJson = async (req, res) => {
-    const { projectId } = req.params;
-    const userId = req.session.userId;
-    if (!req.file) {
-        return res.status(400).json({ message: 'No se subió ningún archivo' });
-    }
-    try {
-        const fileContent = fs.readFileSync(req.file.path, 'utf-8');
-        let fields;
-        try {
-            fields = JSON.parse(fileContent);
-        } catch (e) {
-            return res.status(400).json({ message: 'El archivo no es un JSON válido' });
-        }
-        if (!Array.isArray(fields)) {
-            return res.status(400).json({ message: 'El archivo debe ser un array de fields' });
-        }
-        // Eliminar formulario base anterior si existe para ese proyecto
-        await BaseForm.deleteOne({ projectId });
-        const newBaseForm = new BaseForm({
-            projectId,
-            fields,
-            updatedBy: userId,
-        });
-        await newBaseForm.save();
-        res.status(201).json({ message: 'Formulario base creado exitosamente', baseForm: newBaseForm });
-    } catch (error) {
-        res.status(500).json({ message: 'Error al importar fields', error });
-    }
-};
 import BaseForm from '../models/baseForm.js';
 import User from '../models/user.js';
 import { baseformTokenCache } from '../index.js';
@@ -249,5 +203,56 @@ export const releaseEditingStatus = async (req, res) => {
         res.status(200).json({ message: "Bloqueo liberado correctamente" });
     } catch (error) {
         res.status(500);
+    }
+};
+
+// crear formulario a partir de fields de plantilla
+export const importFieldsFromJson = async (req, res) => {
+    const { projectId } = req.params;
+    const userId = req.session.userId;
+    const { fields } = req.body;
+    if (!fields || !Array.isArray(fields) || fields.length === 0) {
+        return res.status(400).json({ message: 'No se proporcionaron campos válidos' });
+    }
+
+    try {
+        const baseform = await BaseForm.findOne({ projectId });
+        if (baseform) {
+            return res.status(400).json({ message: 'Ya existe un formulario base para este proyecto' });
+        }
+
+            //validar formato
+    const validTypes = ['textarea', 'number', 'select', 'multiselect', 'boolean', 'date'];
+    for (const [i, field] of fields.entries()) {
+        if (typeof field !== 'object' || field === null) {
+            return res.status(400).json({ message: `El campo en la posición ${i} no es un objeto válido` });
+        }
+        if (field.label && typeof field.label !== 'string') {
+            return res.status(400).json({ message: `El campo en la posición ${i} tiene un nombre inválido (label)` });
+        }
+        if (!field.type || typeof field.type !== 'string' || !validTypes.includes(field.type)) {
+            return res.status(400).json({ message: `El campo '${field.label}' tiene un tipo inválido` });
+        }
+        if (field.enabled !== undefined && typeof field.enabled !== 'boolean') {
+            return res.status(400).json({ message: `El campo '${field.label}' no está habilitado o deshabilitado correctamente (enabled)` });
+        }
+        if ((field.type === 'select' || field.type === 'multiselect') && (!Array.isArray(field.options) || field.options.some(opt => typeof opt !== 'string'))) {
+            return res.status(400).json({ message: `El campo '${field.label}' debe tener un array de opciones de texto` });
+        }
+        if (field.helpText && typeof field.helpText !== 'string') {
+            return res.status(400).json({ message: `El campo '${field.label}' tiene un helpText inválido` });
+        }
+    }
+
+        const newBaseForm = new BaseForm({
+            projectId,
+            fields,
+            updatedBy: userId,
+        });
+
+        await newBaseForm.save();
+        res.status(201).json(newBaseForm);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al importar campos', error });
     }
 };

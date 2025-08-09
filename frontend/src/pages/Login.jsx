@@ -13,7 +13,7 @@ import Stack from "@mui/material/Stack";
 import ForgotPassword from "../components/ForgotPassword";
 
 const Login = () => {
-  const {fetchUser} = useAuth();
+  const {fetchUser, user} = useAuth();
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState({
     email: "",
@@ -79,6 +79,8 @@ const Login = () => {
       password: "",
     });
   };
+
+  if(user) navigate('/project');
 
   return (
     <div className="form-container">

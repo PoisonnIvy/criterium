@@ -11,7 +11,7 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
 import Divider from '@mui/joy/Divider';
 
-export default function UploadModal({ open, onClose, projectId }) {
+export default function UploadModal({ open, onClose, projectId, onSubmit }) {
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [parsedFields, setParsedFields] = useState(null);
@@ -59,6 +59,7 @@ export default function UploadModal({ open, onClose, projectId }) {
           return;
         }
         setParsedFields(json.fields);
+        console.log(json.fields);
         setSelectedFile(file);
       } catch (err) {
         setToast({ open: true, message: 'El archivo no es un JSON válido', type: 'error' });
@@ -69,25 +70,13 @@ export default function UploadModal({ open, onClose, projectId }) {
     reader.readAsText(file);
   };
 
-  const handleUpload = async () => {
+  const handleSubmit = async () => {
     if (!parsedFields || !selectedFile) return;
     setLoading(true);
-    try {
-      await axios.post(
-        `${import.meta.env.VITE_APP_SERVER_URL}/project/${projectId}/bform/import-fields`,
-        parsedFields,
-        {
-          withCredentials: true,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-      setToast({ open: true, message: 'Formulario importado correctamente', type: 'success' });
-      setParsedFields(null);
-      setSelectedFile(null);
-      onClose();
-    } catch (error) {
-      setToast({ open: true, message: 'Error al importar el formulario', type: 'error' });
-    }
+    onSubmit(parsedFields);
+    setParsedFields(null);
+    setSelectedFile(null);
+    onClose();
     setLoading(false);
   };
 
@@ -146,7 +135,8 @@ export default function UploadModal({ open, onClose, projectId }) {
             color="success"
             disabled={!parsedFields || loading}
             loading={loading}
-            onClick={handleUpload}
+            onClick={handleSubmit}
+
           >
             Importar
           </Button>
