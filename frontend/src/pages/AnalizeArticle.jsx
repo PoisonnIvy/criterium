@@ -12,6 +12,7 @@ import axios from 'axios'
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+import { useProject } from '../hooks/useProject'
 
 
   function getSources(article) {
@@ -54,6 +55,7 @@ import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 
 const AnalizeArticle = () => {
     const {assignmentId, projectId, articleId} = useParams();
+    const {fetchBaseform} = useProject();
     const [form, setForm] = useState();
     const [loading, setLoading] = useState(false);
     const [activeSource, setActiveSource] = useState(0);
@@ -80,7 +82,8 @@ const AnalizeArticle = () => {
             }
         }
           fetchForm();
-    },[assignmentId])
+        fetchBaseform(projectId);
+    },[assignmentId, projectId])
 
 
   return (
@@ -121,11 +124,12 @@ const AnalizeArticle = () => {
             </Panel>
             <PanelResizeHandle style={{ width: 8, background: '#e0e0e0', cursor: 'col-resize' }} />
             <Panel minSize={20} defaultSize={50}>
-                <Box sx={{p:1,position: 'sticky',height: '100%',overflow: 'hidden',bgcolor: 'background.body'}}>
+                <Box sx={{p:1,position: 'sticky',height: '100%',bgcolor: 'background.body', overflow: 'auto', scrollbarWidth: 'none',
+                '&::-webkit-scrollbar': {display: 'none'}}}>
                   <Select
                 value={activeSource}
                 onChange={(_, value) => setActiveSource(value)}
-                sx={{ mb: 2, minWidth: 200 }}
+                sx={{ mb: 2, minWidth: 200, }}
               >
                 {availableSources.map((src, idx) => (
                   <Option key={idx} value={idx}>

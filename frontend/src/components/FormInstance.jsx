@@ -14,7 +14,7 @@ import Checkbox from '@mui/joy/Checkbox'
 import Textarea from '@mui/joy/Textarea'
 import Button from '@mui/joy/Button'
 import CircularProgress from '@mui/joy/CircularProgress'
-import Divider from '@mui/material/Divider';
+import Divider from '@mui/joy/Divider';
 import LinearScaleIcon from '@mui/icons-material/LinearScale';
 import Chip from '@mui/material/Chip';
 
@@ -156,7 +156,7 @@ export default function FormInstance({formInstance, projectId}) {
         setToast({ open: true, message: 'Error al guardar', type: 'error' });
       }
     };
-  if (!formInstance) {
+  if (!formInstance || !baseform) {
     return (
       <Box component='main'>
         <Typography>Cargando formulario...</Typography>

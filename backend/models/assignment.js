@@ -34,6 +34,9 @@ const assignmentSchema = new mongoose.Schema({
         type: String, 
         enum: ['baja', 'media', 'alta'], 
         default: 'media' 
+    },
+    priorityBy:{
+        type: String
     }
 }, {
     timestamps: true,

@@ -58,8 +58,8 @@ const ProjectDetail = () => {
   const droppedAssignments = Array.isArray(assignments)
     ? assignments.filter(a => a.status === 'no asignado' && a.reviewerId === null).length
     : 0; 
-  const notAssigned = totalAssignments - totalArticles;
-  
+  const notAssigned = totalArticles - totalAssignments;
+
 
   const hasFormularioBase = baseform.msg? false: true;
 

@@ -18,6 +18,7 @@ import BasicFormModal from '../../components/FormModal';
 import { transformArticlePayload } from '../../utils/articleTransform';
 import InfoToast from '../../components/InfoToast';
 import {toCapitalize} from '../../utils/stringFormater';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 const ProjectInstances = () => {
   const {projectId} = useParams();
@@ -68,6 +69,10 @@ const editFields = [
   });
 };
   const filteredAssignments = getFilteredAssignments();
+  // Separar y ordenar: primero las de prioridad alta
+  const highPriority = filteredAssignments.filter(a => a.priority === 'alta');
+  const others = filteredAssignments.filter(a => a.priority !== 'alta');
+  const sortedAssignments = [...highPriority, ...others];
 
   const handleEditChange = (e) => {
   setEditValues(prev => ({
@@ -191,19 +196,40 @@ return (
     }
     </Stack>
       <Stack spacing={2} mt={4}>
-        {filteredAssignments.length === 0 ? (
+        {sortedAssignments.length === 0 ? (
           <Box>No hay asignaciones para mostrar, revisa artículos en la biblioteca del proyecto</Box>
-          ) : (
-            filteredAssignments.map((a, idx) => (
-              <Stack 
-                key={idx}
-                sx={{
-                  border: '1px solid #ccc',
-                  borderRadius: 10,
-                  contentVisibility:'auto',
-                  p: 3,
-                  background: '#f9f9f9',
+        ) : (
+          sortedAssignments.map((a, idx) => (
+            <Stack
+              key={idx}
+              sx={{
+                border: '1px solid #ccc',
+                borderRadius: 10,
+                contentVisibility: 'auto',
+                p: 3,
+                background: '#f9f9f9',
+                mb: a.priority === 'alta' ? 2 : 0
+              }}>
+              {a.priority === 'alta' && (
+                <Box sx={{
+                  bgcolor: '#fff8e1',
+                  color: '#b26a00',
+                  border: '1px solid #ffe082',
+                  borderRadius: 1,
+                  px: 1.5,
+                  py: 0.5,
+                  mb: 1,
+                  fontWeight: 500,
+                  fontSize: 14,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  maxWidth: 400
                 }}>
+                  <WarningAmberIcon sx={{ fontSize: 18, color: '#b26a00', mr: 1 }} />
+                  Prioridad alta asignada por {a.priorityBy}
+                </Box>
+              )}
               <Box
                 sx={{
                   border: '1px solid #ccc',
@@ -215,53 +241,52 @@ return (
                   gap: 1,
                 }}
               >
-                <strong>Artículo:</strong> <p style={{fontSize:'1.5rem'}}>{a.articleId?.title || 'Sin título'}</p>
+                <strong>Artículo:</strong> <p style={{ fontSize: '1.5rem' }}>{a.articleId?.title || 'Sin título'}</p>
                 <span>
                   <strong>Estado:</strong> {a.status}
                 </span>
-                      <span>
-                    <strong>Prioridad:</strong> {a.priority}
-                  </span>
-                  {['investigador principal', 'editor'].includes(role) && (
-                    <Stack direction='column'>
+                <span>
+                  <strong>Prioridad:</strong> {a.priority}
+                </span>
+                {['investigador principal', 'editor'].includes(role) && (
+                  <Stack direction='column'>
                     <span>
                       <strong>Asignado a:</strong> {a.reviewerId?.name || a.reviewerId?.email || 'Desconocido'}
                     </span>
                     <span>
-                      <strong>Correo:</strong> {  a.reviewerId?.email || 'Desconocido'}
-                      </span>
-                      </Stack>
-                  )}
+                      <strong>Correo:</strong> {a.reviewerId?.email || 'Desconocido'}
+                    </span>
+                  </Stack>
+                )}
                 <Stack direction='row' gap='10px'>
-                   { a.reviewerId?._id===user.userId  &&
-                   <Button disabled={isBlocked} color='danger' size='md' sx={{ maxWidth: 200, height: 50 }} onClick={() => handleRemove(a._id)}>Eliminar asignación</Button> }
+                  {a.reviewerId?._id === user.userId &&
+                    <Button disabled={isBlocked} color='danger' size='md' sx={{ maxWidth: 200, height: 50 }} onClick={() => handleRemove(a._id)}>Eliminar asignación</Button>}
                   {a.reviewerId?._id === user.userId && (
-                      <Button disabled={isBlocked}   size='md' sx={{ maxWidth: 200, height: 50 }} onClick={() => navigate(`/analize/${a._id}/${projectId}/${a.articleId._id}`)}>
-                        Analizar artículo
-                      </Button> 
+                    <Button disabled={isBlocked} size='md' sx={{ maxWidth: 200, height: 50 }} onClick={() => navigate(`/analize/${a._id}/${projectId}/${a.articleId._id}`)}>
+                      Analizar artículo
+                    </Button>
                   )}
-                 
-                  <Button disabled={isBlocked} color='secondary' size='md' sx={{maxWidth:200, height:50, color:'white'}} onClick={()=>handleEditMetadata(a.articleId._id)}>Editar metadatos</Button>
-                  <Box sx={{ mb: 2, display:'flex', flexDirection:'column'}}>
-                          <label htmlFor="priority-select" style={{ marginRight: 8 }}>Cambiar prioridad</label>
-                          <Select
-                            disabled={isBlocked}
-                            id="priority-select"
-                            value={a.priority}
-                            onChange={(_, value) => handleChangePriority(a._id, value)}
-                            size="sm"
-                            sx={{ minWidth: 60 }}
-                          >
-                            <Option value="alta">Alta</Option>
-                            <Option value="media">Media</Option>
-                            <Option value="baja">Baja</Option>
-                          </Select>
-                  </Box>
+                  <Button disabled={isBlocked} color='secondary' size='md' sx={{ maxWidth: 200, height: 50, color: 'white' }} onClick={() => handleEditMetadata(a.articleId._id)}>Editar metadatos</Button>
+                  {['investigador principal', 'editor'].includes(role) && <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column' }}>
+                    <label htmlFor="priority-select" style={{ marginRight: 8 }}>Cambiar prioridad</label>
+                    <Select
+                      disabled={isBlocked}
+                      id="priority-select"
+                      value={a.priority}
+                      onChange={(_, value) => handleChangePriority(a._id, value)}
+                      size="sm"
+                      sx={{ minWidth: 60 }}
+                    >
+                      <Option value="alta">Alta</Option>
+                      <Option value="media">Media</Option>
+                      <Option value="baja">Baja</Option>
+                    </Select>
+                  </Box>}
                 </Stack>
-                </Box>
-                </Stack>
-              ))
-            )}
+              </Box>
+            </Stack>
+          ))
+        )}
           </Stack>
         <BasicFormModal
           open={editModalOpen}

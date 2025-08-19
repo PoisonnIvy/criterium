@@ -170,7 +170,6 @@ export const resetPassword = async (req, res) => {
     const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(process.env.TOKEN_SECRET, 'hex'), iv);
     let encryptedToken = cipher.update(tokenData, 'utf8', 'hex');
     encryptedToken += cipher.final('hex');
-    console.log(encryptedToken);
 
     resetPasswordCache.set(encryptedToken,{email:norm_email});
 

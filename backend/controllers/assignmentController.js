@@ -120,6 +120,7 @@ export const updateAssignment = async (req, res) => {
     const assignment = req.assignment;
     const { status, priority } = req.body;
     const userId=req.session.userId;
+    const username=req.session.username;
     const userRole = req.userRole;
     const assignee = assignment.reviewerId;
 
@@ -135,10 +136,12 @@ export const updateAssignment = async (req, res) => {
     if (status==='completado') {
         assignment.completedAt = Date.now()
         assignment.status = status;
-    }else if(status)assignment.status = status;
-        
-    if (priority) assignment.priority = priority;
+    }else if(status) assignment.status = status
 
+    if (priority && ['investigador principal','editor'].includes(userRole)) {
+        assignment.priority = priority;
+        assignment.priorityBy = username;
+    }else return res.status(403).json({message:'No tienes permiso para cambiar la prioridad de esta asignación'});
     try {
         const updatedAssignment = await assignment.save();
         res.status(200).json(updatedAssignment);

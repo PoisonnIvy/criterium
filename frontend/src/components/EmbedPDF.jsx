@@ -22,7 +22,7 @@ export default function EmbedPDF({  abstract, pdfPath, links }) {
       <Typography level="h4" sx={{ mb: 2, color: 'var(--color-terracotta)' }}>Resumen del artículo</Typography>
       <Typography level="body-md" sx={{ mb: 2 }}>{abstract || 'No hay resumen disponible.'}</Typography>
       {Array.isArray(links) && links.length > 0 && (
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 2, overflow: 'auto' }} >
           <Typography level="body-md" sx={{ mb: 1, fontWeight: 'bold' }}>Enlaces disponibles:</Typography>
           <ul style={{ paddingLeft: 20 }}>
             {links.map((l, idx) => (
