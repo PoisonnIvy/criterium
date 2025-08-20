@@ -32,6 +32,10 @@ const formInstanceSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId, 
             ref: 'User' 
         },
+        enabled: { 
+            type: Boolean, 
+            default: true
+        },
         notes: String,
     }],
     analysisStatus: { 
@@ -54,8 +58,8 @@ formInstanceSchema.index({ projectId: 1, analysisStatus: 1 });
 formInstanceSchema.index({ projectId: 1, _id:1});
 
 formInstanceSchema.methods.updateProgress = function() {
-  const totalFields = this.data.length;
-  const completedFields = this.data.filter(d => d.value !== null && d.value !== undefined && d.value !== '').length;
+  const totalFields = this.data.filter(d => d.enabled).length;
+  const completedFields = this.data.filter(d => d.value !== null && d.value !== undefined && d.value !== '' && d.enabled === true).length;
   this.completionPercentage = totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0;
 
 };

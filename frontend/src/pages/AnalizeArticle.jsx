@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Box from '@mui/joy/Box'
-import Grid from '@mui/joy/Grid'
 import Stack from '@mui/joy/Stack'
 import Skeleton from '@mui/joy/Skeleton'
 import Typography  from '@mui/joy/Typography'
@@ -119,7 +118,9 @@ const AnalizeArticle = () => {
                 overflow: 'auto', scrollbarWidth: 'none',
                 '&::-webkit-scrollbar': {display: 'none'}
                 }}>
-                <FormInstance formInstance={form} projectId={projectId} />
+                <FormInstance formInstance={form} 
+                              projectId={projectId}
+                              onUpdateInstance={updated => setForm(updated)}/>
                 </Box>
             </Panel>
             <PanelResizeHandle style={{ width: 8, background: '#e0e0e0', cursor: 'col-resize' }} />

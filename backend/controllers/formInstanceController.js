@@ -52,6 +52,8 @@ export const getFormInstanceById = async (req, res) => {
         if (!instance) {
             return res.status(404).json({ message: 'Instancia no encontrada' });
         }
+        instance.updateProgress();
+        await instance.save();
         res.status(200).json(instance);
     } catch (error) {
         res.status(500);

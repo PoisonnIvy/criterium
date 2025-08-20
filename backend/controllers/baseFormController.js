@@ -1,4 +1,4 @@
-
+import FormInstance from '../models/formInstance.js';
 import BaseForm from '../models/baseForm.js';
 import User from '../models/user.js';
 import { baseformTokenCache } from '../index.js';
@@ -56,6 +56,24 @@ export const updateBaseForm = async (req, res) => {
         baseForm.isActive = true;
         await baseForm.save();
         baseformTokenCache.del(baseForm._id.toString());
+        // --- ACTUALIZAR TODAS LAS INSTANCIAS ---
+        const instances = await FormInstance.find({ projectId: baseForm.projectId, baseFormId: baseForm._id });
+        for (const instance of instances) {
+            const newData = baseForm.fields.map(field => {
+                const prev = instance.data.find(d => d.fieldId.toString() === field._id.toString());
+                return {
+                    fieldId: field._id,
+                    value: prev ? prev.value : "",
+                    notes: prev ? prev.notes : "",
+                    extractedBy: prev ? prev.extractedBy : null,
+                    enabled: field.enabled !== undefined ? field.enabled : true
+                };
+            });
+            instance.data = newData;
+            instance.updateProgress();
+            await instance.save();
+        }
+
         res.status(200).json(baseForm);
     } catch (error) {
         res.status(500);

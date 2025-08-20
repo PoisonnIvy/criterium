@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from 'react'
 import InfoToast from './InfoToast';
-import  Skeleton  from '@mui/joy/Skeleton'
 import axios from 'axios'
 import { useProject } from '../hooks/useProject'
 import Box from '@mui/joy/Box'
@@ -16,9 +15,8 @@ import Button from '@mui/joy/Button'
 import CircularProgress from '@mui/joy/CircularProgress'
 import Divider from '@mui/joy/Divider';
 import LinearScaleIcon from '@mui/icons-material/LinearScale';
-import Chip from '@mui/material/Chip';
 
-export default function FormInstance({formInstance, projectId}) {
+export default function FormInstance({formInstance, projectId, onUpdateInstance}) {
     const{baseform} =useProject();
     const [answers, setAnswers] = useState({});
     const [toast, setToast] = useState({ open: false, message: '', type: 'success' });
@@ -131,9 +129,10 @@ export default function FormInstance({formInstance, projectId}) {
       }));
 
       try {
-        await axios.patch(`${import.meta.env.VITE_APP_SERVER_URL}/instancia/project/${projectId}/instance/edit/${formInstance._id.toString()}`,
+        const res=await axios.patch(`${import.meta.env.VITE_APP_SERVER_URL}/instancia/project/${projectId}/instance/edit/${formInstance._id.toString()}`,
           { data }, {withCredentials:true}
         );
+        onUpdateInstance(res.data);
         setToast({ open: true, message: 'Respuestas guardadas', type: 'success' });
       } catch (error) {
         setToast({ open: true, message: 'Error al guardar', type: 'error' });
