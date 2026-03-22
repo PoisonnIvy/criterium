@@ -75,6 +75,7 @@ app.use(session({
     httpOnly: true, // para desarrollo false o no poner
     secure: true, //para desarrollo false
     sameSite: "none",
+    domain: undefined
   },
 }));
 
