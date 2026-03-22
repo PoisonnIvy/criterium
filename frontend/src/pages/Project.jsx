@@ -34,7 +34,7 @@ export default function Project () {
       setLoading(true);
       try {
         const res = await axios.get(
-          `/proyecto/user`,
+          `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/user`,
           { withCredentials: true }
         );
         setProjects(res.data);
@@ -69,7 +69,7 @@ export default function Project () {
     e.preventDefault();
     try {
       const res = await axios.post(
-        `/proyecto/new`,
+        `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/new`,
         form,
         { withCredentials: true }
       );

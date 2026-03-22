@@ -20,7 +20,7 @@ import { useProject } from '../hooks/useProject'
         sources.push({
           label: 'PDF local',
           type: 'pdf',
-          pdfPath: `/${article.pdfPath}`,
+          pdfPath: `${import.meta.env.VITE_APP_SERVER_URL}/${article.pdfPath}`,
           abstract: article.abstract || '',
           links: []
         });
@@ -64,9 +64,9 @@ const AnalizeArticle = () => {
         setLoading(true);
         const fetchForm = async ()=>{
             try {
-                const formInst = await axios.get(`/instancia/project/${projectId}/instance/${assignmentId}`,
+                const formInst = await axios.get(`${import.meta.env.VITE_APP_SERVER_URL}/instancia/project/${projectId}/instance/${assignmentId}`,
                 {withCredentials: true})
-                const {data:article}= await axios.get(`/articulos/project/${projectId}/one/${articleId}`,
+                const {data:article}= await axios.get(`${import.meta.env.VITE_APP_SERVER_URL}/articulos/project/${projectId}/one/${articleId}`,
                 {withCredentials:true})
                 setForm(formInst.data);
                 const allSources = getSources(article);

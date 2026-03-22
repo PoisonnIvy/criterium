@@ -87,7 +87,7 @@ const filteredArticles = articles.msg
   const handleAssignToMember = async (memberId) => {
     setAssignLoading(true);
     try {
-      await axios.post(`/asignacion/project/${projectId}/new/${articleToAssign}`,
+      await axios.post(`${import.meta.env.VITE_APP_SERVER_URL}/asignacion/project/${projectId}/new/${articleToAssign}`,
         {reviewerId: memberId},
         {withCredentials:true}
       )
@@ -123,7 +123,7 @@ const filteredArticles = articles.msg
           throw new Error('No se encontró la asignación para este artículo.');
         }
         await axios.patch(
-          `/asignacion/project/${projectId}/assignment/${assignment._id}/revoke?change=true`,
+          `${import.meta.env.VITE_APP_SERVER_URL}/asignacion/project/${projectId}/assignment/${assignment._id}/revoke?change=true`,
           { reviewerId: memberId },
           { withCredentials: true }
         );
@@ -150,7 +150,7 @@ const filteredArticles = articles.msg
   const handleTakeArticle = async (articleId) => {
     setAssignLoading(true);
     try {
-      await axios.post(`/asignacion/project/${projectId}/new/${articleId}`,
+      await axios.post(`${import.meta.env.VITE_APP_SERVER_URL}/asignacion/project/${projectId}/new/${articleId}`,
         {},
         {withCredentials:true}
       )

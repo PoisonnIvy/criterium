@@ -74,7 +74,7 @@ const ProjectArticles = () => {
         }
       };
       const response = await axios.post(
-        `/websearch/crossref/${projectId}`,
+        `${import.meta.env.VITE_APP_SERVER_URL}/websearch/crossref/${projectId}`,
          params, {withCredentials: true}
       );
 
@@ -115,7 +115,7 @@ const ProjectArticles = () => {
       const articlesToSave = Array.from(selectedArticles).map(index => articles[index]);
       
         const response = await axios.post(
-          `/articulos/project/${projectId}/addBulk`,
+          `${import.meta.env.VITE_APP_SERVER_URL}/articulos/project/${projectId}/addBulk`,
           {articles: articlesToSave},{ withCredentials: true }
         );
 
@@ -138,7 +138,7 @@ const ProjectArticles = () => {
     setLoadDetails(true);
     try {
       const fetchOA= async()=>{
-        const res= await axios.post(`/websearch/unpaywall/data/${projectId}`,
+        const res= await axios.post(`${import.meta.env.VITE_APP_SERVER_URL}/websearch/unpaywall/data/${projectId}`,
           [article.doi.toString()], {withCredentials:true})
         
         setOa(res.data.results[0]) //results es un array de objetos

@@ -13,7 +13,7 @@ const Profile = () => {
     const fetchProjects = async () => {
       try {
         const res = await axios.get(
-          `/proyecto/user`,
+          `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/user`,
           { withCredentials: true }
         );
         setProjects(res.data || []);

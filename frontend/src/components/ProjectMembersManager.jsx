@@ -52,7 +52,7 @@ const ProjectMembersManager = ({
     }
     try {
       await axios.post(
-        `/proyecto/invite/${projectId}`,
+        `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/invite/${projectId}`,
         { email: newMemberEmail },
         { withCredentials: true }
       );
@@ -86,7 +86,7 @@ const ProjectMembersManager = ({
     }
     try {
       await axios.patch(
-        `/proyecto/member/${projectId}/${member.userId._id}`,
+        `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/member/${projectId}/${member.userId._id}`,
         {},
         { withCredentials: true }
       );
@@ -113,7 +113,7 @@ const ProjectMembersManager = ({
   if(!['editor','colaborador'].includes(newRole)) return;
   try {
     await axios.patch(
-      `/proyecto/member/${projectId}/${member.userId._id}/role`,
+      `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/member/${projectId}/${member.userId._id}/role`,
       { member: { userId: member.userId._id, role: newRole } },
       { withCredentials: true }
     );

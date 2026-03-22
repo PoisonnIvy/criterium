@@ -85,11 +85,11 @@ const editFields = [
     
     try {
       if(['investigador principal','editor'].includes(role)){
-      await axios.patch(`/asignacion/project/${projectId}/assignment/${assignmentId}/revoke`,
+      await axios.patch(`${import.meta.env.VITE_APP_SERVER_URL}/asignacion/project/${projectId}/assignment/${assignmentId}/revoke`,
         {},
         {withCredentials:true})
       }else {
-        await axios.patch(`/asignacion/project/${projectId}/remove/assignment/${assignmentId}`,
+        await axios.patch(`${import.meta.env.VITE_APP_SERVER_URL}/asignacion/project/${projectId}/remove/assignment/${assignmentId}`,
         {},
         {withCredentials:true})
       }
@@ -109,7 +109,7 @@ const editFields = [
   const handleEditMetadata = async (articleId) => {
     setEditArticleId(articleId)
     try {
-      const {data:article}= await axios.get(`/articulos/project/${projectId}/one/${articleId}`,
+      const {data:article}= await axios.get(`${import.meta.env.VITE_APP_SERVER_URL}/articulos/project/${projectId}/one/${articleId}`,
         {withCredentials:true})
       setEditValues({
         title: article.title || '',
@@ -145,7 +145,7 @@ const editFields = [
   try {
     const payload= transformArticlePayload(editValues)
     await axios.patch(
-      `/articulos/project/${projectId}/article/modify/${editArticleId}`,
+      `${import.meta.env.VITE_APP_SERVER_URL}/articulos/project/${projectId}/article/modify/${editArticleId}`,
       payload,
       { withCredentials: true }
     );
@@ -160,7 +160,7 @@ const editFields = [
 
   const handleChangePriority = async (assignmentId, newPriority) =>{
     try {
-      await axios.patch(`/asignacion/project/${projectId}/update/${assignmentId}`,
+      await axios.patch(`${import.meta.env.VITE_APP_SERVER_URL}/asignacion/project/${projectId}/update/${assignmentId}`,
         {priority: newPriority},
         {withCredentials:true}
       )

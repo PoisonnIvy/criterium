@@ -34,7 +34,7 @@ const ScreeningSubmenu = () => {
   const handleSaveCriteria = async (newCriteria) => {
         try {
           await axios.patch(
-            `/proyecto/edit/${projectId}`,
+            `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/edit/${projectId}`,
             { screeningCriteria: newCriteria },
             { withCredentials: true }
           );
@@ -52,7 +52,7 @@ const ScreeningSubmenu = () => {
     setLoading(true);
     try {
       axios.patch(
-        `/articulos/project/${projectId}/article/screening/${articleId}`,
+        `${import.meta.env.VITE_APP_SERVER_URL}/articulos/project/${projectId}/article/screening/${articleId}`,
         {status: 'aceptado', criteriaNotes: comments[articleId] || ''},
         { withCredentials: true }
       );
@@ -75,7 +75,7 @@ const ScreeningSubmenu = () => {
     setSelectedArticle(null);
     try {
       axios.patch(
-        `/articulos/project/${projectId}/article/screening/${articleId}`,
+        `${import.meta.env.VITE_APP_SERVER_URL}/articulos/project/${projectId}/article/screening/${articleId}`,
         {status: 'descartado', criteriaNotes: comments[articleId] || ''},
         { withCredentials: true }
       );

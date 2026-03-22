@@ -38,7 +38,7 @@ const ProjectBaseForm = () => {
       if (baseform.comments) setComments(baseform.comments);
       const handleBeforeUnload = () => {
           if (token) {
-              navigator.sendBeacon(`/formulario/project/${projectId}/bform/${baseform._id}/cancel?token=${token}`, {},{withCredentials:true});
+              navigator.sendBeacon(`${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/${baseform._id}/cancel?token=${token}`, {},{withCredentials:true});
           }
       };
       fetchBaseform(projectId);
@@ -64,7 +64,7 @@ const ProjectBaseForm = () => {
     //solicitar token para edicion
   const handleEditForm = async () => {
     try {
-      const res= await axios.patch(`/formulario/project/${projectId}/bform/editing/${baseform._id}`,
+      const res= await axios.patch(`${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/editing/${baseform._id}`,
         {},
         { withCredentials: true })
       setToken(res.data.token)
@@ -75,7 +75,7 @@ const ProjectBaseForm = () => {
 
 
     } catch (error) {
-      console.log({project:projectId, baseform:baseform._id, url:`/formulario/project/${projectId}/bform/editing/${baseform._id}`})
+      console.log({project:projectId, baseform:baseform._id, url:`${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/editing/${baseform._id}`})
       console.log({erorr:error})
 
     }
@@ -92,7 +92,7 @@ const ProjectBaseForm = () => {
   const handleUploadForm = async (fields) => {
     try {
       await axios.post(
-        `/formulario/project/${projectId}/bform/import-fields`,
+        `${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/import-fields`,
         { fields },
         { withCredentials: true }
       );
@@ -111,7 +111,7 @@ const ProjectBaseForm = () => {
   const handleUpdateForm = async (fields) => {
     try {
       await axios.patch(
-        `/formulario/project/${projectId}/bform/update/${baseform._id}?token=${token}`,
+        `${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/update/${baseform._id}?token=${token}`,
         { fields },
         { withCredentials: true }
       );
@@ -131,7 +131,7 @@ const ProjectBaseForm = () => {
   //revoca token para editar formulario base
   const handleCancel= async()=>{
     try {
-      await axios.patch(`/formulario/project/${projectId}/bform/${baseform._id}/cancel?token=${token}`,
+      await axios.patch(`${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/${baseform._id}/cancel?token=${token}`,
         {},
         { withCredentials: true })
       setModalOpen(false)
@@ -164,7 +164,7 @@ const ProjectBaseForm = () => {
     if (!commentText.trim()) return;
     try {
       const res = await axios.put(
-        `/formulario/project/${projectId}/bform/comment/${baseform._id}`,
+        `${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/comment/${baseform._id}`,
         { comment: commentText },
         { withCredentials: true }
       );
@@ -180,7 +180,7 @@ const ProjectBaseForm = () => {
   const handleResolveComment = async (commentId) => {
     try {
       await axios.patch(
-        `/formulario/project/${projectId}/comments/update/${commentId}`,
+        `${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/comments/update/${commentId}`,
         { status: 'resuelto' },
         { withCredentials: true }
       );

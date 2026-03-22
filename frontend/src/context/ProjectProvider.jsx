@@ -22,7 +22,7 @@ export const ProjectProvider = ({children}) => {
    const fetchProject = useCallback(async(projectId) =>{
       try {
         const res= await axios.get(
-          `/proyecto/${projectId}`,
+          `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/${projectId}`,
           {withCredentials:true}
         );
         for(const member of res.data.members){
@@ -41,7 +41,7 @@ export const ProjectProvider = ({children}) => {
   
   const fetchArticles= useCallback (async(projectId) =>{
     try {
-      const res = await axios.get( `/articulos/project/${projectId}/all/articles`,
+      const res = await axios.get( `${import.meta.env.VITE_APP_SERVER_URL}/articulos/project/${projectId}/all/articles`,
           { withCredentials: true });
         if(res.data.length ===0 || !res.data) {
           setArticles({msg: 'No se han encontrado artículos asociados al proyecto'})
@@ -55,7 +55,7 @@ export const ProjectProvider = ({children}) => {
 
   const fetchBaseform = useCallback (async(projectId)=> {
     try {
-      const res= await axios.get(`/formulario/project/${projectId}/bform/get`,
+      const res= await axios.get(`${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/get`,
           {withCredentials: true}
         )
         if(res.data === null) {
@@ -71,7 +71,7 @@ export const ProjectProvider = ({children}) => {
  
     const fetchInstances = useCallback (async(projectId)=> {
     try {
-      const res= await axios.get(`/instancia/project/${projectId}/instances`,
+      const res= await axios.get(`${import.meta.env.VITE_APP_SERVER_URL}/instancia/project/${projectId}/instances`,
           {withCredentials: true}
         )
         setInstances(res.data)
@@ -85,7 +85,7 @@ export const ProjectProvider = ({children}) => {
 
   const fetchFlatInstances = useCallback (async(projectId)=> {
     try {
-      const res= await axios.get(`/instancia/project/${projectId}/tabledata`,
+      const res= await axios.get(`${import.meta.env.VITE_APP_SERVER_URL}/instancia/project/${projectId}/tabledata`,
           {withCredentials: true}
         )
         setFlatInstances(res.data)
@@ -99,7 +99,7 @@ export const ProjectProvider = ({children}) => {
 
     const fetchAssignments = useCallback (async (projectId) =>{
       try {
-        const res = await axios.get(`/asignacion/project/${projectId}/assignment/all`,
+        const res = await axios.get(`${import.meta.env.VITE_APP_SERVER_URL}/asignacion/project/${projectId}/assignment/all`,
           {withCredentials: true})
           setAssignments(res.data)
       } catch (error) {
@@ -111,7 +111,7 @@ export const ProjectProvider = ({children}) => {
  const postBaseForm = useCallback (async (projectId, fields) =>{
     if(role !== 'investigador principal') return;
       try {
-        const res = await axios.post(`/formulario/project/${projectId}/bform/create`,
+        const res = await axios.post(`${import.meta.env.VITE_APP_SERVER_URL}/formulario/project/${projectId}/bform/create`,
           {fields},
           {withCredentials: true})
           setBaseform(res.data)
