@@ -49,13 +49,10 @@ export const passwordTokenCache = new NodeCache({
 const app = express();
 
 
-app.use(
-  cors({
-    origin: [process.env.CLIENT_URL, 'http://localhost:4173'],
-    methods: ["GET", "POST","PATCH", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: (origin, callback) => callback(null, origin),
+  credentials: true
+}))
 app.use(express.json()); // allows to parse JSON data in the request body
 app.use(express.urlencoded({ extended: true })); // allows to parse URL-encoded data in the request body
 
