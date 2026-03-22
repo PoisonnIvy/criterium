@@ -70,7 +70,7 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24, // 1 dia
     httpOnly: true, // para desarrollo false o no poner
     secure: true, //para desarrollo false
-    sameSite: "none",
+    sameSite: "lax",
   },
 }));
 
