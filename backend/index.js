@@ -47,7 +47,7 @@ export const passwordTokenCache = new NodeCache({
   checkperiod: 600
 });
 const app = express();
-
+app.set('trust proxy', 1);
 
 app.use(
   cors({
