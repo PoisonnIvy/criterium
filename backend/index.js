@@ -50,9 +50,13 @@ const app = express();
 
 
 app.use(cors({
-  origin: (origin, callback) => callback(null, origin),
+  origin: [
+    'http://localhost:5173',
+    'https://front-production-5e8b.up.railway.app'
+  ],
   credentials: true
 }))
+
 app.use(express.json()); // allows to parse JSON data in the request body
 app.use(express.urlencoded({ extended: true })); // allows to parse URL-encoded data in the request body
 
@@ -70,7 +74,7 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24, // 1 dia
     httpOnly: true, // para desarrollo false o no poner
     secure: true, //para desarrollo false
-    sameSite: "lax",
+    sameSite: "none",
   },
 }));
 
