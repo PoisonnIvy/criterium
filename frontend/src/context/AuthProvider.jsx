@@ -15,7 +15,7 @@ export const AuthProvider=({ children })=> {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `${import.meta.env.VITE_APP_SERVER_URL}/auth/me`,
+        `/auth/me`,
         { withCredentials: true }
       );
       setUser(data.user);
@@ -32,7 +32,7 @@ export const AuthProvider=({ children })=> {
     setLoading(true);
     try {
       await axios.post(
-        `${import.meta.env.VITE_APP_SERVER_URL}/auth/logout`,
+        `/auth/logout`,
         {},
         { withCredentials: true }
       );

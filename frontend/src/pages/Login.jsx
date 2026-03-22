@@ -45,7 +45,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        `${import.meta.env.VITE_APP_SERVER_URL}/auth/login`,
+        `/auth/login`,
         {
           ...inputValue,
         },
@@ -58,7 +58,7 @@ const Login = () => {
         const pendingToken = localStorage.getItem('pendingInviteToken');
         if (pendingToken) {
           const { data } = await axios.post(
-            `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/accept/${pendingToken}`,
+            `/proyecto/accept/${pendingToken}`,
             {},
             { withCredentials: true }
           );

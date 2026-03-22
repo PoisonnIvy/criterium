@@ -129,7 +129,7 @@ export default function FormInstance({formInstance, projectId, onUpdateInstance}
       }));
 
       try {
-        const res=await axios.patch(`${import.meta.env.VITE_APP_SERVER_URL}/instancia/project/${projectId}/instance/edit/${formInstance._id.toString()}`,
+        const res=await axios.patch(`/instancia/project/${projectId}/instance/edit/${formInstance._id.toString()}`,
           { data }, {withCredentials:true}
         );
         onUpdateInstance(res.data);
@@ -147,7 +147,7 @@ export default function FormInstance({formInstance, projectId, onUpdateInstance}
       }));
 
       try {
-        await axios.patch(`${import.meta.env.VITE_APP_SERVER_URL}/instancia/project/${projectId}/instance/edit/${formInstance._id.toString()}?status=completado`,
+        await axios.patch(`/instancia/project/${projectId}/instance/edit/${formInstance._id.toString()}?status=completado`,
           { data }, {withCredentials:true}
         );
         setToast({ open: true, message: 'Respuestas guardadas y formulario completado', type: 'success' });

@@ -164,7 +164,7 @@ const normalizeArticle = (article) => ({
       }
         try {
           await axios.post(
-            `${import.meta.env.VITE_APP_SERVER_URL}/articulos/project/${project._id}/article/add`,
+            `/articulos/project/${project._id}/article/add`,
             normalized,
             { withCredentials: true }
           );
@@ -258,7 +258,7 @@ const normalizeArticle = (article) => ({
         const formData = new FormData();
         formData.append('archivo', file);
         await axios.post(
-          `${import.meta.env.VITE_APP_SERVER_URL}/articulos/project/${project._id}/article/upload/${articleId}`,
+          `/articulos/project/${project._id}/article/upload/${articleId}`,
           formData,
           { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
         );

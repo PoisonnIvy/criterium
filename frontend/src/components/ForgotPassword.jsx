@@ -14,7 +14,7 @@ export default function ForgotPassword({ open, onClose }) {
   const handleSendCode = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.post(`${import.meta.env.VITE_APP_SERVER_URL}/auth/reset-password`, { email });
+      const { data } = await axios.post(`/auth/reset-password`, { email });
       setMessage(data.message);
       if (data.success) setCodeSent(true);
     } catch (error) {

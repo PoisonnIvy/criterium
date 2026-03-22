@@ -39,7 +39,7 @@ export default function RestorePassword() {
     const handleChangePassword = async () => {
       try {
         const res=await axios.post(
-                  `${import.meta.env.VITE_APP_SERVER_URL}/auth/validate-password/${restore.toString()}`,
+                  `/auth/validate-password/${restore.toString()}`,
                    changePassword 
                 );
         setMessage(res.data.message);

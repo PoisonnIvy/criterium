@@ -47,7 +47,7 @@ const ProjectManage = () => {
   const refreshMembers = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/${projectId}`,
+        `/proyecto/${projectId}`,
         { withCredentials: true }
       );
       setMembers(res.data.members || []);
@@ -66,7 +66,7 @@ const ProjectManage = () => {
   const handleProjectStatus= async (status)=>{
     try {
       await axios.patch(
-        `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/change/${projectId}?status=${status}`,
+        `/proyecto/change/${projectId}?status=${status}`,
         {},
         { withCredentials: true }
       );
@@ -84,7 +84,7 @@ const ProjectManage = () => {
 
   const handleLeaveProject = async () =>{
     try {
-      await axios.delete(`${import.meta.env.VITE_APP_SERVER_URL}/proyecto/leave/${projectId}`, 
+      await axios.delete(`/proyecto/leave/${projectId}`, 
         {withCredentials:true})
         setToastMessage('Has abandonado el proyecto correctamente');
         setToastType('success');
@@ -102,7 +102,7 @@ const ProjectManage = () => {
   }
   const handleEdit = async()=>{
     try {
-      await axios.patch(`${import.meta.env.VITE_APP_SERVER_URL}/proyecto/edit/${projectId}`,
+      await axios.patch(`/proyecto/edit/${projectId}`,
         editValues,
         {withCredentials:true})
       setToastMessage('Proyecto actualizado correctamente')

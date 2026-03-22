@@ -14,7 +14,7 @@ const Invitation = () => {
   const acceptInvite = async (inviteToken) => {
     try {
       const { data } = await axios.post(
-        `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/accept/${inviteToken}`,
+        `/proyecto/accept/${inviteToken}`,
         {},
         { withCredentials: true }
       );

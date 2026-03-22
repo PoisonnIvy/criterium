@@ -53,7 +53,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        `${import.meta.env.VITE_APP_SERVER_URL}/auth/signup`,
+        `/auth/signup`,
         {
           ...inputValue,
         },
@@ -83,7 +83,7 @@ const Signup = () => {
     setVerifyLoading(true);
     try {
       const { data } = await axios.post(
-        `${import.meta.env.VITE_APP_SERVER_URL}/auth/verify`,
+        `/auth/verify`,
         { ...pendingUser, code },
         { withCredentials: true }
       );
@@ -93,7 +93,7 @@ const Signup = () => {
         const pendingToken = localStorage.getItem('pendingInviteToken');
         if (pendingToken) {
           const { data } = await axios.post(
-            `${import.meta.env.VITE_APP_SERVER_URL}/proyecto/accept/${pendingToken}`,
+            `/proyecto/accept/${pendingToken}`,
             {},
             { withCredentials: true }
           );
