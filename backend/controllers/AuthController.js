@@ -99,11 +99,6 @@ export const Login = async (req, res) => {
   
       User.findByIdAndUpdate(user._id, { lastLogin: new Date().toISOString() }, { new: true });
       });
-    await User.findByIdAndUpdate(
-      user._id,
-      { lastLogin: new Date().toISOString() },
-      { new: true }
-    );
   } catch (error) {
     res.status(400)
     console.error(error);
