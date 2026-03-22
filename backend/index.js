@@ -47,6 +47,7 @@ export const passwordTokenCache = new NodeCache({
   checkperiod: 600
 });
 const app = express();
+
 app.set('trust proxy', 1);
 
 app.use(
@@ -72,9 +73,9 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 dia
-    httpOnly: true, // para desarrollo false o no poner
+    httpOnly: true,
     secure: true, //para desarrollo false
-    sameSite: "none",
+    sameSite: "none", // para desarrollo lax, en produccion none
     domain: undefined
   },
 }));
@@ -87,7 +88,6 @@ app.use("/instancia", FormInstances);
 app.use("/asignacion", Assignments);
 app.use("/articulos", Articles);
 app.use("/websearch", WebArticles); 
-
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
