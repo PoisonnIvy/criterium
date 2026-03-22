@@ -92,8 +92,13 @@ export const Login = async (req, res) => {
     req.session.email = user.email;
     req.session.lastLogin=user.lastLogin;
     req.session.createdAt = user.createdAt,
-    res.status(201).json({message: `Bienvenido! ${user.name}`, 
-                          success: true});
+    req.session.save((err) => {
+      if (err) return res.status(500).json({ message: 'Error al guardar sesión' });
+  
+      res.status(201).json({ message: `Bienvenido! ${user.name}`, success: true });
+  
+      User.findByIdAndUpdate(user._id, { lastLogin: new Date().toISOString() }, { new: true });
+      });
     await User.findByIdAndUpdate(
       user._id,
       { lastLogin: new Date().toISOString() },
